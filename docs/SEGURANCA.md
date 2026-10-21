@@ -354,7 +354,7 @@ O arquivo `.well-known/security.txt` declara:
 - contato: `seguranca@lojadobairro.example`;
 - expiração: `2027-10-21T00:00:00.000Z`;
 - idiomas: `pt-BR` e `en`;
-- política: `https://tiagocfonsecaba.github.io/loja-do-bairro-dashboard/docs/SEGURANCA.md`;
+- política: `https://cyber-math.github.io/loja-do-bairro-dashboard/docs/SEGURANCA.md`;
 - reconhecimentos: âncora nesta seção.
 
 Duas limitações devem ser corrigidas:

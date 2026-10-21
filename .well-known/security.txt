@@ -1,9 +1,9 @@
 Contact: mailto:seguranca@lojadobairro.com.br
 Expires: 2027-10-21T00:00:00.000Z
 Preferred-Languages: pt-BR, en
-Canonical: https://tiagocfonsecaba.github.io/loja-do-bairro-dashboard/.well-known/security.txt
-Policy: https://tiagocfonsecaba.github.io/loja-do-bairro-dashboard/docs/SEGURANCA.md
-Acknowledgments: https://tiagocfonsecaba.github.io/loja-do-bairro-dashboard/docs/SEGURANCA.md#reconhecimentos
+Canonical: https://cyber-math.github.io/loja-do-bairro-dashboard/.well-known/security.txt
+Policy: https://github.com/cyber-math/loja-do-bairro-dashboard/blob/main/docs/SEGURANCA.md
+Acknowledgments: https://github.com/cyber-math/loja-do-bairro-dashboard/blob/main/docs/SEGURANCA.md#reconhecimentos
 
 # Ambiente de demonstração (PoC). Não há dados reais de clientes.
 # Vulnerabilidades devem ser reportadas de forma privada pelo contato acima.

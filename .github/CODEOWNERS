@@ -2,12 +2,12 @@
 # Revisão obrigatória por área. O mantenedor primário responde por todo o
 # repositório; regras mais específicas aparecem depois da regra geral.
 
-* @tiagocfonsecaba
+* @cyber-math
 
-/assets/js/ @tiagocfonsecaba
-/assets/css/ @tiagocfonsecaba
-/scripts/ @tiagocfonsecaba
-/.github/ @tiagocfonsecaba
-/docs/ @tiagocfonsecaba
-/SECURITY.md @tiagocfonsecaba
-/CONTRIBUTING.md @tiagocfonsecaba
+/assets/js/ @cyber-math
+/assets/css/ @cyber-math
+/scripts/ @cyber-math
+/.github/ @cyber-math
+/docs/ @cyber-math
+/SECURITY.md @cyber-math
+/CONTRIBUTING.md @cyber-math

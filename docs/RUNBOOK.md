@@ -9,8 +9,8 @@ backup e comunicação.
 | Versão de referência | 1.0.0 |
 | Última revisão | 2026-10-21 |
 | Responsável | Manutenção de Sistemas |
-| URL de produção | `https://tiagocfonsecaba.github.io/loja-do-bairro-dashboard/` |
-| Repositório | `tiagocfonsecaba/loja-do-bairro-dashboard` |
+| URL de produção | `https://cyber-math.github.io/loja-do-bairro-dashboard/` |
+| Repositório | `cyber-math/loja-do-bairro-dashboard` |
 | Documentos relacionados | [MANUTENCAO.md](MANUTENCAO.md) · [TESTES.md](TESTES.md) · [SEGURANCA.md](SEGURANCA.md) |
 
 ## 1. Escopo e premissas
@@ -44,7 +44,7 @@ mais alto até obter evidência.
 
 | Papel | Responsável | Canal | Observação |
 | --- | --- | --- | --- |
-| Mantenedor primário | `@tiagocfonsecaba` | Menção em issue/PR e GitHub | Único code owner configurado |
+| Mantenedor primário | `@cyber-math` | Menção em issue/PR e GitHub | Único code owner configurado |
 | Segurança | `seguranca@lojadobairro.example` | E-mail | Endereço declarado no `security.txt`; usa domínio reservado `.example` e precisa ser substituído antes de uso real |
 | GitHub Support | — | `https://support.github.com` | Somente para falha da plataforma |
 | Fornecedor de CDN | — | Sites dos provedores | Chart.js e fontes são serviços de terceiros |
@@ -93,15 +93,15 @@ Permissões necessárias para operar:
 Bash, macOS, Linux, Git Bash ou WSL:
 
 ```bash
-curl -sS -o /dev/null -w "%{http_code}\n" https://tiagocfonsecaba.github.io/loja-do-bairro-dashboard/
-curl -sS https://tiagocfonsecaba.github.io/loja-do-bairro-dashboard/version.json
+curl -sS -o /dev/null -w "%{http_code}\n" https://cyber-math.github.io/loja-do-bairro-dashboard/
+curl -sS https://cyber-math.github.io/loja-do-bairro-dashboard/version.json
 ```
 
 PowerShell:
 
 ```powershell
-(Invoke-WebRequest -Uri "https://tiagocfonsecaba.github.io/loja-do-bairro-dashboard/" -UseBasicParsing).StatusCode
-(Invoke-RestMethod -Uri "https://tiagocfonsecaba.github.io/loja-do-bairro-dashboard/version.json") | Format-List
+(Invoke-WebRequest -Uri "https://cyber-math.github.io/loja-do-bairro-dashboard/" -UseBasicParsing).StatusCode
+(Invoke-RestMethod -Uri "https://cyber-math.github.io/loja-do-bairro-dashboard/version.json") | Format-List
 ```
 
 Sinais esperados:
@@ -117,7 +117,7 @@ Sinais esperados:
 gh run list --workflow=ci.yml --limit 5
 gh run list --workflow=pages.yml --limit 5
 gh run view <RUN_ID> --log
-gh api repos/tiagocfonsecaba/loja-do-bairro-dashboard/pages
+gh api repos/cyber-math/loja-do-bairro-dashboard/pages
 ```
 
 O retorno de `pages` deve indicar `status: built`, `build_type: workflow` e a
@@ -294,8 +294,8 @@ Detectar --> Triar --> Conter --> Comunicar --> Recuperar --> Validar --> Postmo
 
 ```bash
 gh run list --workflow=pages.yml --limit 5
-gh api repos/tiagocfonsecaba/loja-do-bairro-dashboard/pages
-curl -sS -I https://tiagocfonsecaba.github.io/loja-do-bairro-dashboard/
+gh api repos/cyber-math/loja-do-bairro-dashboard/pages
+curl -sS -I https://cyber-math.github.io/loja-do-bairro-dashboard/
 ```
 
 Verificar também se o artefato contém `index.html` e `assets/`:
@@ -349,7 +349,7 @@ com check vermelho.
 
 ```bash
 gh run view <RUN_ID> --log
-gh api repos/tiagocfonsecaba/loja-do-bairro-dashboard/pages
+gh api repos/cyber-math/loja-do-bairro-dashboard/pages
 ```
 
 - Falha no `build`: mesma investigação de P-02.
@@ -382,7 +382,7 @@ Chart.js no repositório. Não prometer gráficos sem rede.
 **Diagnóstico:**
 
 ```bash
-curl -sS https://tiagocfonsecaba.github.io/loja-do-bairro-dashboard/version.json
+curl -sS https://cyber-math.github.io/loja-do-bairro-dashboard/version.json
 git log -1 --oneline
 gh run list --workflow=pages.yml --limit 5
 ```
@@ -502,14 +502,14 @@ Select-String -Path assets/js/data.js -Pattern "SEED"
 ### 10.2 Criar backup local
 
 ```bash
-git clone --mirror https://github.com/tiagocfonsecaba/loja-do-bairro-dashboard.git backup.git
+git clone --mirror https://github.com/cyber-math/loja-do-bairro-dashboard.git backup.git
 git bundle create loja-do-bairro-$(date +%Y%m%d).bundle --all
 ```
 
 PowerShell:
 
 ```powershell
-git clone --mirror https://github.com/tiagocfonsecaba/loja-do-bairro-dashboard.git backup.git
+git clone --mirror https://github.com/cyber-math/loja-do-bairro-dashboard.git backup.git
 git bundle create "loja-do-bairro-$(Get-Date -Format yyyyMMdd).bundle" --all
 ```
 
@@ -522,7 +522,7 @@ gh release download --pattern "*.zip" --dir backup-release
 ### 10.3 Restaurar
 
 ```bash
-git clone https://github.com/tiagocfonsecaba/loja-do-bairro-dashboard.git restaurado
+git clone https://github.com/cyber-math/loja-do-bairro-dashboard.git restaurado
 cd restaurado
 git checkout v1.0.0
 npm run check
@@ -580,7 +580,7 @@ Semestralmente:
 | Ver log | `gh run view <RUN_ID> --log` |
 | Reexecutar | `gh run rerun <RUN_ID>` |
 | Deploy manual | `gh workflow run pages.yml --ref main` |
-| Status do Pages | `gh api repos/tiagocfonsecaba/loja-do-bairro-dashboard/pages` |
+| Status do Pages | `gh api repos/cyber-math/loja-do-bairro-dashboard/pages` |
 | Listar releases | `gh release list` |
 | Baixar release | `gh release download --pattern "*.zip"` |
 | Reverter | `git revert <SHA>` e `git push origin main` |

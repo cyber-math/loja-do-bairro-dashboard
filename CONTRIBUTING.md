@@ -9,7 +9,7 @@ dentro do escopo descrito abaixo.
 | Branch principal | `main` |
 | Versão de referência | 1.0.0 |
 | Licença | `UNLICENSED` (sem licença de uso público) |
-| Dono do código | `@tiagocfonsecaba` |
+| Dono do código | `@cyber-math` |
 | Documentos relacionados | [README.md](README.md) · [TESTES.md](docs/TESTES.md) · [MANUTENCAO.md](docs/MANUTENCAO.md) · [SEGURANCA.md](docs/SEGURANCA.md) |
 
 ## 1. Antes de começar
@@ -46,7 +46,7 @@ execute `npm install` nem `npm ci`; não há nada para instalar.
 ## 3. Preparar o ambiente
 
 ```bash
-git clone https://github.com/tiagocfonsecaba/loja-do-bairro-dashboard.git
+git clone https://github.com/cyber-math/loja-do-bairro-dashboard.git
 cd loja-do-bairro-dashboard
 node --version
 npm run check

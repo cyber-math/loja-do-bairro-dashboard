@@ -3,4 +3,4 @@ Allow: /
 Disallow: /docs/
 
 # PoC estático — nenhum conteúdo privado é servido por este site.
-Sitemap: https://tiagocfonsecaba.github.io/loja-do-bairro-dashboard/sitemap.xml
+Sitemap: https://cyber-math.github.io/loja-do-bairro-dashboard/sitemap.xml
