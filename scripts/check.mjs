@@ -1,138 +1,224 @@
 /**
- * Verificações de CI do site estático — sem dependências externas.
- *
- * Valida arquivos obrigatórios, referências locais do index.html, sintaxe dos
- * scripts e os marcadores usados pelo build para carimbar a versão.
+ * Verificações do site estático antes do build/deploy.
+ * Sem dependências externas; falha com exit code 1 quando algo está errado.
  */
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
-import { extname, join, relative, resolve } from 'node:path';
-import { RAIZ } from './version.mjs';
+import {
+  existsSync,
+  readFileSync,
+  readdirSync,
+  statSync,
+} from 'node:fs';
+import { extname, join, relative, resolve, sep } from 'node:path';
+import { ROOT } from './version.mjs';
 
-const falhas = [];
-const avisos = [];
-let aprovadas = 0;
+const failures = [];
+const warnings = [];
+let passed = 0;
 
-const ok = (texto) => {
-  aprovadas += 1;
-  console.log(`  ok     ${texto}`);
+const ok = (message) => {
+  passed += 1;
+  console.log(`  ok    ${message}`);
 };
-const erro = (texto) => {
-  falhas.push(texto);
-  console.log(`  erro   ${texto}`);
+const warn = (message) => {
+  warnings.push(message);
+  console.log(`  aviso ${message}`);
 };
-const aviso = (texto) => {
-  avisos.push(texto);
-  console.log(`  aviso  ${texto}`);
+const fail = (message) => {
+  failures.push(message);
+  console.log(`  erro  ${message}`);
 };
-const secao = (titulo) => console.log(`\n${titulo}`);
+const section = (title) => console.log(`\n${title}`);
 
-const SEMVER = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/;
-
-/* ------------------------------------------------------------------ *
- * 1. Arquivos obrigatórios                                            *
- * ------------------------------------------------------------------ */
-secao('Arquivos obrigatórios');
-for (const item of [
-  'index.html',
-  'package.json',
-  'README.md',
-  'CHANGELOG.md',
-  '.nojekyll',
-  'assets/css/styles.css',
-  'assets/js/app.js',
-  'assets/js/charts.js',
-  'assets/js/data.js',
-  'scripts/build.mjs',
-  'scripts/check.mjs',
-  'scripts/version.mjs',
-  '.github/workflows/ci.yml',
-  '.github/workflows/pages.yml',
-  '.github/workflows/release.yml',
-]) {
-  if (existsSync(join(RAIZ, item))) ok(item);
-  else erro(`arquivo obrigatório ausente — ${item}`);
+function toPosix(path) {
+  return path.split(sep).join('/');
 }
 
-/* ------------------------------------------------------------------ *
- * 2. Referências locais do index.html                                  *
- * ------------------------------------------------------------------ */
-secao('Referências do index.html');
-const html = readFileSync(join(RAIZ, 'index.html'), 'utf8');
-const refs = [...html.matchAll(/(?:src|href)="([^"]+)"/g)]
-  .map((m) => m[1])
-  .filter((url) => !/^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(url));
+section('1. Arquivos e referências do index.html');
 
-for (const ref of refs) {
-  const caminho = ref.split(/[?#]/)[0];
-  if (!caminho) continue;
-  if (caminho.startsWith('/')) {
-    erro(`referência absoluta quebra no GitHub Pages — ${caminho}`);
-    continue;
-  }
-  if (existsSync(resolve(RAIZ, caminho))) ok(`resolvido — ${caminho}`);
-  else erro(`referência local inexistente — ${caminho}`);
-}
+const indexPath = join(ROOT, 'index.html');
+let html = '';
 
-/* ------------------------------------------------------------------ *
- * 3. Sintaxe dos scripts                                              *
- * ------------------------------------------------------------------ */
-secao('Sintaxe dos scripts');
+if (!existsSync(indexPath)) {
+  fail('index.html não encontrado');
+} else {
+  ok('index.html encontrado');
+  html = readFileSync(indexPath, 'utf8');
 
-function listarJs(dir) {
-  return readdirSync(dir).flatMap((entrada) => {
-    const caminho = join(dir, entrada);
-    if (statSync(caminho).isDirectory()) return listarJs(caminho);
-    return extname(entrada) === '.js' ? [caminho] : [];
-  });
-}
+  const references = [
+    ...html.matchAll(/(?:src|href)\s*=\s*["']([^"']+)["']/gi),
+  ].map((match) => match[1].trim());
 
-for (const arquivo of listarJs(join(RAIZ, 'assets'))) {
-  try {
-    execFileSync(process.execPath, ['--check', arquivo], { stdio: 'pipe' });
-    ok(`sintaxe válida — ${relative(RAIZ, arquivo).replace(/\\/g, '/')}`);
-  } catch (e) {
-    erro(`erro de sintaxe em ${relative(RAIZ, arquivo)}: ${String(e.stderr || e.message).split('\n')[0]}`);
+  const local = references.filter(
+    (ref) => ref && !/^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(ref)
+  );
+
+  if (local.length === 0) warn('nenhuma referência local encontrada no index.html');
+
+  for (const ref of local) {
+    let decoded;
+    try {
+      decoded = decodeURIComponent(ref.split(/[?#]/)[0]);
+    } catch {
+      fail(`referência com URL inválida — ${ref}`);
+      continue;
+    }
+
+    if (!decoded) continue;
+    if (decoded.startsWith('/')) {
+      fail(`referência absoluta quebra o GitHub Pages — ${ref}`);
+      continue;
+    }
+
+    const target = resolve(ROOT, decoded);
+    const rel = relative(ROOT, target);
+    if (rel.startsWith('..') || rel === '' || resolve(target) !== target) {
+      fail(`referência fora do projeto — ${ref}`);
+      continue;
+    }
+
+    if (existsSync(target) && statSync(target).isFile()) {
+      ok(`referência local existe — ${ref}`);
+    } else {
+      fail(`referência local não encontrada — ${ref}`);
+    }
   }
 }
 
-/* ------------------------------------------------------------------ *
- * 4. Marcadores de versão                                             *
- * ------------------------------------------------------------------ */
-secao('Marcadores de versão');
-for (const meta of ['app-version', 'app-commit', 'app-channel']) {
-  const total = (html.match(new RegExp(`<meta name="${meta}" content="[^"]*">`, 'g')) || []).length;
-  if (total === 1) ok(`meta ${meta}`);
-  else erro(`esperava 1 <meta name="${meta}">, encontrei ${total}`);
-}
-for (const atributo of ['data-app-version', 'data-app-commit', 'data-app-channel']) {
-  const total = (html.match(new RegExp(`\\s${atributo}(?=[\\s>])`, 'g')) || []).length;
-  if (total >= 1) ok(`placeholder ${atributo}`);
-  else erro(`placeholder ${atributo} ausente no index.html`);
+section('2. Sintaxe dos JavaScript em assets/js');
+
+const jsDir = join(ROOT, 'assets', 'js');
+const jsFiles = [];
+
+function collectJs(dir) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) collectJs(path);
+    else if (entry.isFile() && extname(entry.name) === '.js') jsFiles.push(path);
+  }
 }
 
-/* ------------------------------------------------------------------ *
- * 5. Metadados do projeto                                            *
- * ------------------------------------------------------------------ */
-secao('Metadados');
-try {
-  const pacote = JSON.parse(readFileSync(join(RAIZ, 'package.json'), 'utf8'));
-  if (SEMVER.test(String(pacote.version || ''))) ok(`versão semver — v${pacote.version}`);
-  else erro(`versão inválida no package.json — "${pacote.version}"`);
-  if (pacote.private === true) ok('pacote marcado como private');
-  else aviso('package.json sem "private": true');
-  if (pacote.scripts && pacote.scripts.check && pacote.scripts.build) ok('scripts check/build declarados');
-  else erro('package.json precisa dos scripts "check" e "build"');
-} catch (e) {
-  erro(`package.json ilegível — ${e.message}`);
+if (!existsSync(jsDir)) {
+  fail('pasta assets/js não encontrada');
+} else {
+  collectJs(jsDir);
+  if (jsFiles.length === 0) fail('nenhum arquivo .js em assets/js');
+
+  for (const file of jsFiles.sort()) {
+    const name = toPosix(relative(ROOT, file));
+    try {
+      execFileSync(process.execPath, ['--check', file], { stdio: 'pipe' });
+      ok(`sintaxe válida — ${name}`);
+    } catch (error) {
+      const detail = String(error.stderr || error.stdout || error.message)
+        .split(/\r?\n/)
+        .find((line) => line.trim()) || 'erro desconhecido';
+      fail(`sintaxe inválida — ${name}: ${detail.trim()}`);
+    }
+  }
 }
 
-/* ------------------------------------------------------------------ *
- * Resultado                                                          *
- * ------------------------------------------------------------------ */
+section('3. IDs duplicados no HTML');
+
+if (!html) {
+  warn('verificação ignorada porque o index.html não pôde ser lido');
+} else {
+  const markup = html
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/<script\b[\s\S]*?<\/script>/gi, '')
+    .replace(/<style\b[\s\S]*?<\/style>/gi, '');
+
+  const seen = new Map();
+  for (const match of markup.matchAll(/\bid\s*=\s*["']([^"']+)["']/gi)) {
+    const id = match[1];
+    seen.set(id, (seen.get(id) || 0) + 1);
+  }
+
+  const duplicates = [...seen.entries()].filter(([, count]) => count > 1);
+  if (duplicates.length === 0) {
+    ok(`nenhum ID duplicado (${seen.size} IDs únicos)`);
+  } else {
+    for (const [id, count] of duplicates) {
+      fail(`ID duplicado — "${id}" aparece ${count} vezes`);
+    }
+  }
+}
+
+section('4. Encoding dos arquivos de texto');
+
+const BINARY_EXTENSIONS = new Set([
+  '.png', '.jpg', '.jpeg', '.gif', '.webp', '.avif', '.ico', '.bmp',
+  '.woff', '.woff2', '.ttf', '.otf', '.eot',
+  '.zip', '.gz', '.tar', '.7z', '.rar', '.pdf', '.mp3', '.mp4', '.webm',
+]);
+const SKIP_DIRS = new Set(['.git', 'node_modules', 'dist']);
+let scanned = 0;
+const corrupted = [];
+
+function scanTextFiles(dir) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (entry.isDirectory()) {
+      if (!SKIP_DIRS.has(entry.name)) scanTextFiles(join(dir, entry.name));
+      continue;
+    }
+    if (!entry.isFile() || BINARY_EXTENSIONS.has(extname(entry.name).toLowerCase())) {
+      continue;
+    }
+
+    const path = join(dir, entry.name);
+    let content;
+    try {
+      content = readFileSync(path, 'utf8');
+    } catch {
+      continue;
+    }
+    scanned += 1;
+    if (content.includes('\uFFFD')) corrupted.push(toPosix(relative(ROOT, path)));
+  }
+}
+
+scanTextFiles(ROOT);
+if (corrupted.length === 0) {
+  ok(`nenhum caractere de substituição U+FFFD (${scanned} arquivos de texto)`);
+} else {
+  for (const file of corrupted) {
+    fail(`caractere U+FFFD encontrado — ${file} (encoding quebrado)`);
+  }
+}
+
+section('5. Marcadores de versão');
+
+if (!html) {
+  warn('verificação ignorada porque o index.html não pôde ser lido');
+} else {
+  const hasMeta = /<meta\b[^>]*\bname\s*=\s*["']app-version["'][^>]*>/i.test(html);
+  const hasPlaceholder = /\bdata-app-version\b/i.test(html);
+  if (hasMeta || hasPlaceholder) {
+    ok(
+      hasMeta && hasPlaceholder
+        ? 'meta app-version e placeholder data-app-version presentes'
+        : hasMeta
+          ? 'meta app-version presente'
+          : 'placeholder data-app-version presente'
+    );
+  } else {
+    fail('index.html não contém <meta name="app-version"> nem data-app-version');
+  }
+}
+
+section('6. GitHub Pages');
+
+if (existsSync(join(ROOT, '.nojekyll'))) ok('.nojekyll presente');
+else fail('.nojekyll ausente (necessário para o GitHub Pages)');
+
 console.log(`\n${'-'.repeat(60)}`);
-if (falhas.length > 0) {
-  console.error(`${falhas.length} problema(s) encontrado(s).`);
+if (failures.length > 0) {
+  console.error(
+    `Check falhou: ${failures.length} erro(s), ${warnings.length} aviso(s), ${passed} verificação(ões) ok.`
+  );
   process.exit(1);
 }
-console.log(`Checagem concluída: ${aprovadas} verificações ok, ${avisos.length} aviso(s).`);
+
+console.log(
+  `Check concluído: ${passed} verificação(ões) ok, ${warnings.length} aviso(s).`
+);

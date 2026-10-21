@@ -16,6 +16,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/styles.css">
+<link rel="stylesheet" href="assets/css/admin.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2310b981'/><path d='M28 62l14 14 30-32' stroke='%23052e21' stroke-width='12' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
 </head>
 <body>
@@ -103,6 +104,13 @@
           <small id="syncInfo">Sincronizado agora</small>
         </div>
       </div>
+
+      <div class="layers" id="layerStatus" aria-label="Status das camadas de backend">
+        <span class="layer" data-layer="api" title="API Gateway · latência 12 ms"><i></i>API</span>
+        <span class="layer" data-layer="db" title="PostgreSQL · latência 8 ms"><i></i>DB</span>
+        <span class="layer" data-layer="queue" title="Event bus · lag 340 ms"><i></i>Fila</span>
+        <span class="layer" data-layer="cdn" title="CDN · latência 21 ms"><i></i>CDN</span>
+      </div>
       <div class="sidebar__user">
         <div class="avatar">MA</div>
         <div class="sidebar__user-info">
@@ -159,7 +167,63 @@
           <span class="badge" id="bellCount">0</span>
         </button>
 
-        <div class="avatar avatar--top">MA</div>
+        <div class="profile" id="profileWrap">
+          <button class="avatar avatar--top" id="btnProfile" type="button"
+                  aria-haspopup="menu" aria-expanded="false" aria-controls="profileMenu"
+                  title="Conta, preferências e administração">
+            MA
+            <span class="profile__presence" title="Online"></span>
+          </button>
+
+          <div class="profile__menu" id="profileMenu" role="menu" hidden>
+            <div class="profile__head">
+              <div class="avatar avatar--lg">MA</div>
+              <div class="profile__id">
+                <strong>Marina Alves</strong>
+                <span>marina.alves@lojadobairro.com.br</span>
+                <span class="chip chip--ok"><i></i>Administradora</span>
+              </div>
+            </div>
+
+            <div class="profile__group">
+              <p class="profile__label">Conta</p>
+              <button class="profile__item" type="button" role="menuitem" data-profile="perfil">
+                <svg class="ico"><use href="#i-user"/></svg><span>Meu perfil</span>
+              </button>
+              <button class="profile__item" type="button" role="menuitem" data-profile="preferencias">
+                <svg class="ico"><use href="#i-gear"/></svg><span>Preferências</span><kbd>⌘,</kbd>
+              </button>
+              <button class="profile__item" type="button" role="menuitem" data-profile="admin">
+                <svg class="ico"><use href="#i-layers"/></svg><span>Painel administrativo</span><span class="chip chip--violet">admin</span>
+              </button>
+              <button class="profile__item" type="button" role="menuitem" data-profile="auditoria">
+                <svg class="ico"><use href="#i-clock"/></svg><span>Trilha de auditoria</span>
+              </button>
+            </div>
+
+            <div class="profile__sep"></div>
+
+            <div class="profile__group">
+              <p class="profile__label">Plataforma</p>
+              <button class="profile__item" type="button" role="menuitem" data-profile="status">
+                <svg class="ico"><use href="#i-target"/></svg><span>Status da plataforma</span>
+                <span class="profile__status"><i></i>operacional</span>
+              </button>
+              <button class="profile__item" type="button" role="menuitem" data-profile="transmissao">
+                <svg class="ico"><use href="#i-command"/></svg><span>Simulação de transmissão</span>
+                <span class="profile__live">live</span>
+              </button>
+              <button class="profile__item profile__item--danger" type="button" role="menuitem" data-profile="sair">
+                <svg class="ico"><use href="#i-x"/></svg><span>Sair da conta</span>
+              </button>
+            </div>
+
+            <footer class="profile__foot">
+              <span>loja-do-bairro</span>
+              <span class="mono">v1.0.0 · mock</span>
+            </footer>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -552,44 +616,143 @@
 
       <!-- ============ CONFIGURAÇÕES ============ -->
       <section class="view" id="view-config">
-        <div class="grid grid--6-6">
-          <article class="card">
-            <header class="card__head"><div><h2>Aparência</h2><p class="card__sub">Preferências locais do painel</p></div></header>
-            <div class="settings">
-              <div class="setting">
-                <div><strong>Tema</strong><small>Escuro ou claro</small></div>
-                <div class="seg" id="cfgTema">
-                  <button data-tema="dark" class="seg__btn is-active">Escuro</button>
-                  <button data-tema="light" class="seg__btn">Claro</button>
+
+        <div class="tabs" id="settingsTabs" role="tablist" aria-label="Configurações">
+          <button class="tab is-active" type="button" role="tab" data-tab="aparencia">Aparência</button>
+          <button class="tab" type="button" role="tab" data-tab="notificacoes">Notificações</button>
+          <button class="tab" type="button" role="tab" data-tab="seguranca">Segurança &amp; acesso</button>
+          <button class="tab" type="button" role="tab" data-tab="admin">Painel administrativo <span class="tab__badge">admin</span></button>
+        </div>
+
+        <div class="tab-panels">
+
+          <!-- ---------- Aparência ---------- -->
+          <div class="tab-panel is-active" data-panel="aparencia">
+            <div class="grid grid--6-6">
+              <article class="card">
+                <header class="card__head"><div><h2>Aparência</h2><p class="card__sub">Preferências locais do painel</p></div></header>
+                <div class="settings">
+                  <div class="setting">
+                    <div><strong>Tema</strong><small>Escuro ou claro</small></div>
+                    <div class="seg" id="cfgTema">
+                      <button data-tema="dark" class="seg__btn is-active">Escuro</button>
+                      <button data-tema="light" class="seg__btn">Claro</button>
+                    </div>
+                  </div>
+                  <div class="setting">
+                    <div><strong>Densidade da interface</strong><small>Espaçamento entre linhas</small></div>
+                    <div class="seg" id="cfgDensidade">
+                      <button data-dens="compacta" class="seg__btn">Compacta</button>
+                      <button data-dens="normal" class="seg__btn is-active">Normal</button>
+                    </div>
+                  </div>
+                  <div class="setting">
+                    <div><strong>Animar gráficos</strong><small>Transições ao redraw</small></div>
+                    <label class="switch"><input type="checkbox" id="cfgAnim" checked><span></span></label>
+                  </div>
+                  <div class="setting">
+                    <div><strong>Números compactos</strong><small>Exibir R$ 1,2 mi em vez de R$ 1.234.567</small></div>
+                    <label class="switch"><input type="checkbox" id="cfgCompacto" checked><span></span></label>
+                  </div>
                 </div>
-              </div>
-              <div class="setting">
-                <div><strong>Densidade da interface</strong><small>Espaçamento entre linhas</small></div>
-                <div class="seg" id="cfgDensidade">
-                  <button data-dens="compacta" class="seg__btn">Compacta</button>
-                  <button data-dens="normal" class="seg__btn is-active">Normal</button>
+              </article>
+              <article class="card">
+                <header class="card__head"><div><h2>Sobre o PoC</h2><p class="card__sub">Ambiente de demonstração</p></div></header>
+                <div class="about">
+                  <p><strong>Loja do Bairro</strong> é um protótipo funcional de painel operacional para uma rede de lojas de bairro. Todos os dados são <strong>mock determinístico</strong> (semente <code id="cfgSeed">—</code>), gerados no navegador — nenhum dado sai da máquina.</p>
+                  <dl class="about__list">
+                    <div><dt>Produtos</dt><dd id="cfgProdutos">—</dd></div>
+                    <div><dt>Ordens de serviço</dt><dd id="cfgOS">—</dd></div>
+                    <div><dt>Janela simulada</dt><dd id="cfgJanela">—</dd></div>
+                    <div><dt>Versão</dt><dd data-app-version>v0.0.0-dev</dd></div>
+                    <div><dt>Build</dt><dd data-app-commit>local</dd></div>
+                    <div><dt>Canal</dt><dd data-app-channel>local</dd></div>
+                  </dl>
                 </div>
-              </div>
-              <div class="setting">
-                <div><strong>Animar gráficos</strong><small>Transições ao redraw</small></div>
-                <label class="switch"><input type="checkbox" id="cfgAnim" checked><span></span></label>
+              </article>
+            </div>
+          </div>
+
+          <!-- ---------- Notificações ---------- -->
+          <div class="tab-panel" data-panel="notificacoes">
+            <div class="grid grid--6-6">
+              <article class="card">
+                <header class="card__head"><div><h2>Alertas operacionais</h2><p class="card__sub">O que merece interromper o seu dia</p></div></header>
+                <div class="settings">
+                  <div class="setting"><div><strong>Estoque crítico</strong><small>Cobertura ≤ 3 dias em qualquer SKU</small></div><label class="switch"><input type="checkbox" checked><span></span></label></div>
+                  <div class="setting"><div><strong>SLA estourado</strong><small>OS aberta além do prazo contratado</small></div><label class="switch"><input type="checkbox" checked><span></span></label></div>
+                  <div class="setting"><div><strong>Falha de transmissão</strong><small>Mensagens na DLQ ou erro &gt; 2%</small></div><label class="switch"><input type="checkbox" checked><span></span></label></div>
+                  <div class="setting"><div><strong>Aprovação de OS</strong><small>Chamados acima de R$ 1.000</small></div><label class="switch"><input type="checkbox" checked><span></span></label></div>
+                  <div class="setting"><div><strong>Mudança de preço</strong><small>Alterações acima de 10% no catálogo</small></div><label class="switch"><input type="checkbox"><span></span></label></div>
+                </div>
+              </article>
+
+              <article class="card">
+                <header class="card__head"><div><h2>Canais de entrega</h2><p class="card__sub">Destinos por severidade</p></div></header>
+                <div class="table-wrap">
+                  <table class="table">
+                    <thead><tr><th>Canal</th><th>Destino</th><th>Severidade</th><th>Status</th></tr></thead>
+                    <tbody>
+                      <tr><td><strong>E-mail</strong></td><td class="muted">ops@lojadobairro.com.br</td><td><span class="chip chip--muted">todas</span></td><td><span class="chip chip--ok"><i></i>ativo</span></td></tr>
+                      <tr><td><strong>WhatsApp</strong></td><td class="muted">+55 11 9••••-0421</td><td><span class="chip chip--crit">crítica</span></td><td><span class="chip chip--ok"><i></i>ativo</span></td></tr>
+                      <tr><td><strong>Push</strong></td><td class="muted">app do gerente</td><td><span class="chip chip--low">alta</span></td><td><span class="chip chip--ok"><i></i>ativo</span></td></tr>
+                      <tr><td><strong>Webhook</strong></td><td class="muted mono">POST /hooks/ops</td><td><span class="chip chip--muted">todas</span></td><td><span class="chip chip--muted">pausado</span></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="settings" style="margin-top:14px">
+                  <div class="setting"><div><strong>Horário de silêncio</strong><small>Somente severidade crítica é entregue</small></div><span class="chip chip--info">22:00 – 07:00</span></div>
+                  <div class="setting"><div><strong>Resumo diário</strong><small>E-mail consolidado às 07:30</small></div><label class="switch"><input type="checkbox" checked><span></span></label></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <!-- ---------- Segurança ---------- -->
+          <div class="tab-panel" data-panel="seguranca">
+            <div class="grid grid--6-6">
+              <article class="card">
+                <header class="card__head"><div><h2>Sessão e autenticação</h2><p class="card__sub">Proteção da conta administrativa</p></div></header>
+                <div class="settings">
+                  <div class="setting"><div><strong>Autenticação em dois fatores</strong><small>TOTP via aplicativo autenticador</small></div><span class="chip chip--ok"><i></i>ativo</span></div>
+                  <div class="setting"><div><strong>Expiração de sessão</strong><small>Bloqueio automático por inatividade</small></div><span class="chip chip--muted">30 min</span></div>
+                  <div class="setting"><div><strong>Política de senha</strong><small>Mínimo 12 caracteres, rotação de 90 dias</small></div><span class="chip chip--muted">forte</span></div>
+                  <div class="setting"><div><strong>IP permitido</strong><small>Restrição por faixa de rede corporativa</small></div><span class="chip chip--low">2 faixas</span></div>
+                  <div class="setting"><div><strong>Último acesso</strong><small>Registrado na trilha de auditoria</small></div><span class="chip chip--info">hoje, 08:12</span></div>
+                </div>
+              </article>
+
+              <article class="card">
+                <header class="card__head"><div><h2>Dispositivos e chaves</h2><p class="card__sub">Acessos ativos neste momento</p></div>
+                  <button class="btn btn--ghost btn--sm" type="button" id="btnRevogar">Revogar todos</button>
+                </header>
+                <div class="table-wrap">
+                  <table class="table">
+                    <thead><tr><th>Dispositivo</th><th>Local</th><th>Último uso</th><th></th></tr></thead>
+                    <tbody>
+                      <tr><td><strong>Chrome · Windows</strong><span class="table__sub">este dispositivo</span></td><td class="muted">São Paulo, BR</td><td class="muted mono">agora</td><td><span class="chip chip--ok">atual</span></td></tr>
+                      <tr><td><strong>Safari · iPhone</strong></td><td class="muted">São Paulo, BR</td><td class="muted mono">há 2 h</td><td><button class="btn btn--ghost btn--sm" type="button">Encerrar</button></td></tr>
+                      <tr><td><strong>Edge · Windows</strong></td><td class="muted">Campinas, BR</td><td class="muted mono">ontem</td><td><button class="btn btn--ghost btn--sm" type="button">Encerrar</button></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="settings" style="margin-top:14px">
+                  <div class="setting"><div><strong>API key · integração fiscal</strong><small class="mono">lb_live_••••••8f2a · escopo fiscal:write</small></div><span class="chip chip--low">expira em 12d</span></div>
+                  <div class="setting"><div><strong>API key · BI</strong><small class="mono">lb_read_••••••1c9d · escopo read</small></div><span class="chip chip--ok">ativa</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <!-- ---------- Painel administrativo ---------- -->
+          <div class="tab-panel" data-panel="admin">
+            <div id="adminRoot">
+              <div class="card" style="text-align:center;color:var(--muted);padding:40px">
+                Carregando painel administrativo…
               </div>
             </div>
-          </article>
-          <article class="card">
-            <header class="card__head"><div><h2>Sobre o PoC</h2><p class="card__sub">Ambiente de demonstração</p></div></header>
-            <div class="about">
-              <p><strong>Loja do Bairro</strong> é um protótipo funcional de painel operacional para uma rede de lojas de bairro. Todos os dados são <strong>mock determinístico</strong> (semente <code id="cfgSeed">—</code>), gerados no navegador — nenhum dado sai da máquina.</p>
-              <dl class="about__list">
-                <div><dt>Produtos</dt><dd id="cfgProdutos">—</dd></div>
-                <div><dt>Ordens de serviço</dt><dd id="cfgOS">—</dd></div>
-                <div><dt>Janela simulada</dt><dd id="cfgJanela">—</dd></div>
-                <div><dt>Versão</dt><dd data-app-version>v0.0.0-dev</dd></div>
-                <div><dt>Build</dt><dd data-app-commit>local</dd></div>
-                <div><dt>Canal</dt><dd data-app-channel>local</dd></div>
-              </dl>
-            </div>
-          </article>
+          </div>
+
         </div>
       </section>
 
@@ -625,6 +788,7 @@
 
 <script src="assets/js/data.js"></script>
 <script src="assets/js/charts.js"></script>
+<script src="assets/js/admin.js"></script>
 <script src="assets/js/app.js"></script>
 <script>
   // Hidrata os marcadores de versão a partir das metas carimbadas no build.

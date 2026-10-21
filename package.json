@@ -2,17 +2,19 @@
   "name": "loja-do-bairro-dashboard",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Painel operacional estático da Loja do Bairro — estoque, ordens de serviço e analytics.",
   "license": "UNLICENSED",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "check": "node scripts/check.mjs",
-    "build": "node scripts/build.mjs",
     "start": "node scripts/serve.mjs",
-    "release:patch": "npm version patch -m \"chore(release): v%s\"",
-    "release:minor": "npm version minor -m \"chore(release): v%s\"",
-    "release:major": "npm version major -m \"chore(release): v%s\""
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/check.mjs",
+    "version": "node scripts/version.mjs",
+    "release:patch": "npm version patch && npm run build",
+    "release:minor": "npm version minor && npm run build",
+    "release:major": "npm version major && npm run build"
   }
 }

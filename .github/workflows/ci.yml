@@ -1,41 +1,38 @@
 name: CI
 
 on:
+  pull_request:
   push:
     branches: [main]
-  pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
 
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
-  validar:
-    name: Validar site estático
+  build:
+    name: Check e build
     runs-on: ubuntu-latest
     timeout-minutes: 10
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
 
-      - name: Node.js
-        uses: actions/setup-node@v7
+      - name: Node.js 22
+        uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 22
 
       - name: Verificações
         run: npm run check
 
-      - name: Build do artefato
+      - name: Build
         run: npm run build
 
-      - name: Conferir artefato
-        run: |
-          test -f dist/index.html
-          test -f dist/version.json
-          test -f dist/.nojekyll
-          cat dist/version.json
+      - name: Upload do site
+        uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: dist/
+          retention-days: 7

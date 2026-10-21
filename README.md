@@ -18,6 +18,8 @@ PoC de dashboard operacional para uma loja de bairro, reunindo estoque, ordens d
 - Busca rápida com Ctrl+K.
 - Tema claro/escuro com preferência salva no navegador.
 - Layout responsivo para desktop, tablet e celular.
+- Menu de perfil e abas de configurações (aparência, notificações, segurança e administração).
+- Painel administrativo com KPIs, mapa de risco, saúde dos ativos, auditoria exportável, topologia e stream de eventos simulado.
 
 ## Como rodar localmente
 

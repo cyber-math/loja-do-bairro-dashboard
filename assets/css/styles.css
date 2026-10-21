@@ -709,3 +709,71 @@ html[data-theme="dark"] .seg__btn.is-active { background: var(--surface-3); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* -------------------------------------------------------------------------
+   22. Complementos do menu de perfil (usados pelo topbar)
+   ------------------------------------------------------------------------- */
+.mono { font-family: var(--mono); }
+
+.avatar--top { position: relative; }
+.avatar--lg { width: 44px; height: 44px; font-size: 14px; }
+
+.profile__presence {
+  position: absolute; right: -1px; bottom: -1px;
+  width: 10px; height: 10px; border-radius: 99px;
+  background: var(--brand); border: 2px solid var(--bg);
+}
+
+.profile__id { display: grid; gap: 2px; min-width: 0; }
+.profile__id strong { font-size: 13.5px; letter-spacing: -.01em; }
+.profile__id > span:not(.chip) { font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.profile__id .chip { justify-self: start; margin-top: 4px; }
+
+.profile__label {
+  font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--faint); padding: 4px 12px 5px;
+}
+
+.profile__item kbd {
+  margin-left: auto; font-family: var(--mono); font-size: 10px;
+  border: 1px solid var(--border); border-radius: 5px; padding: 1px 5px; color: var(--faint);
+}
+
+.profile__status { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; color: var(--brand); }
+.profile__status i { width: 6px; height: 6px; border-radius: 99px; background: var(--brand); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 18%, transparent); }
+
+.profile__live {
+  margin-left: auto; font-size: 9.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--red); padding: 1px 6px; border-radius: 99px;
+  background: color-mix(in srgb, var(--red) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--red) 30%, transparent);
+}
+
+.profile__foot {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 14px; border-top: 1px solid var(--border);
+  font-size: 10.5px; color: var(--faint);
+  background: var(--surface-2);
+}
+
+/* -------------------------------------------------------------------------
+   23. Indicador de camadas do backend (sidebar)
+   ------------------------------------------------------------------------- */
+.layers {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px;
+  padding: 8px 9px; border-radius: 10px;
+  background: var(--surface-2); border: 1px solid var(--border);
+}
+.layer {
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  font-size: 9.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--muted); cursor: default;
+}
+.layer i {
+  width: 6px; height: 6px; border-radius: 99px; background: var(--brand); flex: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 14%, transparent);
+  transition: background .3s var(--ease), box-shadow .3s var(--ease);
+}
+.layer.is-warn i { background: var(--amber); box-shadow: 0 0 0 3px color-mix(in srgb, var(--amber) 16%, transparent); animation: pulse 1.4s infinite; }
+.layer.is-down i { background: var(--red); box-shadow: 0 0 0 3px color-mix(in srgb, var(--red) 16%, transparent); }
+.layer.is-warn { color: var(--amber); }

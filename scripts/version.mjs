@@ -1,29 +1,28 @@
 /**
- * Resolve a versão e os metadados do build.
+ * Resolve a versão publicada a partir do package.json e do contexto do CI.
  *
- * Ordem de precedência:
- *   1. APP_VERSION            — override manual (canal "release").
- *   2. Tag do Git `vX.Y.Z`    — canal "release".
- *   3. `version` do package.json — canal "main" (branch) ou "local".
+ * Regras de canal:
+ *   - tag `vX.Y.Z` no CI  -> "release" (versão sem o "v")
+ *   - branch `main`       -> "main"
+ *   - qualquer outro caso -> "local"
  *
  * Uso:
- *   node scripts/version.mjs              # resumo legível
- *   node scripts/version.mjs --json       # metadados em JSON
- *   node scripts/version.mjs --verify-tag v1.2.3   # falha se divergir do package.json
+ *   node scripts/version.mjs
+ *   node scripts/version.mjs --verify-tag v1.0.0
  */
 import { execFileSync } from 'node:child_process';
-import { appendFileSync, readFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-export const RAIZ = dirname(dirname(fileURLToPath(import.meta.url)));
+export const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 
 const SEMVER = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/;
 
 function git(args) {
   try {
     return execFileSync('git', args, {
-      cwd: RAIZ,
+      cwd: ROOT,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'ignore'],
     }).trim();
@@ -32,111 +31,98 @@ function git(args) {
   }
 }
 
-function lerPacote() {
-  return JSON.parse(readFileSync(join(RAIZ, 'package.json'), 'utf8'));
-}
-
-function repoDoRemote() {
-  const remote = git(['remote', 'get-url', 'origin']);
-  if (!remote) return '';
-  const achado = remote.match(/[/:]([^/:]+)\/([^/]+?)(?:\.git)?$/);
-  return achado ? `${achado[1]}/${achado[2]}` : '';
+function readPackage() {
+  return JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
 }
 
 /**
  * @returns {{
- *   name: string, version: string, channel: string, channelLabel: string,
- *   commit: string, commitFull: string, ref: string, runNumber: string,
- *   repository: string, builtAt: string
+ *   version: string,
+ *   channel: 'release' | 'main' | 'local',
+ *   channelLabel: string,
+ *   commit: string,
+ *   builtAt: string
  * }}
  */
-export function resolverVersao() {
-  const pacote = lerPacote();
+export function resolveVersion() {
+  const pkg = readPackage();
   const refType = String(process.env.GITHUB_REF_TYPE || '');
   const refName = String(process.env.GITHUB_REF_NAME || '');
-  const forcada = String(process.env.APP_VERSION || '').trim().replace(/^v/i, '');
 
-  let version;
-  let channel;
+  let version = String(pkg.version || '');
+  let channel = 'local';
 
-  if (forcada) {
-    version = forcada;
+  if (refType === 'tag' && refName.startsWith('v')) {
+    version = refName.slice(1);
     channel = 'release';
-  } else if (refType === 'tag') {
-    version = refName.replace(/^v/i, '');
-    channel = 'release';
-  } else {
-    version = String(pacote.version || '');
-    channel = refType === 'branch' ? refName || 'main' : 'local';
+  } else if (refName === 'main') {
+    channel = 'main';
   }
 
   if (!SEMVER.test(version)) {
-    throw new Error(`Versão inválida: "${version}" (esperado semver, ex.: 1.2.3)`);
+    throw new Error(`versão inválida no package.json: "${version}" (esperado X.Y.Z)`);
   }
 
   const commitFull = process.env.GITHUB_SHA || git(['rev-parse', 'HEAD']) || 'local';
-  const sujo = channel === 'local' && git(['status', '--porcelain']) !== '';
-  const commit = commitFull === 'local' ? 'local' : commitFull.slice(0, 7);
+  const hasChanges = commitFull !== 'local' && git(['status', '--porcelain']) !== '';
+  const commit = commitFull === 'local'
+    ? 'local'
+    : `${commitFull.slice(0, 7)}${hasChanges ? '-dirty' : ''}`;
 
   const channelLabel =
-    channel === 'release'
-      ? 'Release · tag'
-      : channel === 'local'
-        ? 'Local · sem CI'
-        : `Branch · ${channel}`;
+    channel === 'release' ? 'Release · tag'
+      : channel === 'main' ? 'Branch · main'
+        : 'Local · sem CI';
 
   return {
-    name: pacote.name,
     version,
     channel,
     channelLabel,
-    commit: sujo ? `${commit}-dirty` : commit,
-    commitFull,
-    ref: refName || channel,
-    runNumber: String(process.env.GITHUB_RUN_NUMBER || ''),
-    repository: process.env.GITHUB_REPOSITORY || repoDoRemote(),
+    commit,
     builtAt: new Date().toISOString(),
   };
 }
 
-function imprimirResumo(info) {
-  console.log(`  projeto   ${info.name}`);
-  console.log(`  versão    v${info.version}`);
-  console.log(`  canal     ${info.channelLabel}`);
-  console.log(`  commit    ${info.commit}`);
-  if (info.repository) console.log(`  repo      ${info.repository}`);
-  if (info.runNumber) console.log(`  execução  #${info.runNumber}`);
-}
+const isDirectRun =
+  Boolean(process.argv[1]) &&
+  pathToFileURL(resolve(process.argv[1])).href === import.meta.url;
 
-const executadoDireto =
-  process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url;
-
-if (executadoDireto) {
-  const info = resolverVersao();
+if (isDirectRun) {
   const args = process.argv.slice(2);
-  const indiceTag = args.indexOf('--verify-tag');
+  const tagIndex = args.indexOf('--verify-tag');
 
-  if (args.includes('--json')) {
-    console.log(JSON.stringify(info, null, 2));
-  } else if (indiceTag !== -1) {
-    const esperada = String(args[indiceTag + 1] || '').replace(/^v/i, '');
-    const pacote = lerPacote();
-    if (esperada !== pacote.version) {
-      console.error(
-        `Tag v${esperada} não corresponde ao package.json (v${pacote.version}). ` +
-          'Rode `npm version` antes de taguear.'
+  try {
+    if (tagIndex !== -1) {
+      const tag = String(args[tagIndex + 1] || process.env.GITHUB_REF_NAME || '').trim();
+      const expected = tag.replace(/^v/, '');
+      const { version: packageVersion } = readPackage();
+
+      if (!tag.startsWith('v') || expected !== packageVersion) {
+        console.error(
+          `Tag "${tag}" não corresponde ao package.json (v${packageVersion}). ` +
+            'Rode `npm version` e envie a tag correta.'
+        );
+        process.exit(1);
+      }
+
+      console.log(`Tag ${tag} confere com o package.json (v${packageVersion}).`);
+    } else {
+      const info = resolveVersion();
+      console.log(
+        JSON.stringify(
+          {
+            version: info.version,
+            channel: info.channel,
+            commit: info.commit,
+            builtAt: info.builtAt,
+          },
+          null,
+          2
+        )
       );
-      process.exit(1);
     }
-    console.log(`Tag v${esperada} confere com o package.json.`);
-  } else {
-    imprimirResumo(info);
-  }
-
-  if (process.env.GITHUB_OUTPUT) {
-    const linhas = Object.entries(info)
-      .map(([chave, valor]) => `${chave}=${valor}`)
-      .join('\n');
-    appendFileSync(process.env.GITHUB_OUTPUT, `${linhas}\n`);
+  } catch (error) {
+    console.error(`erro: ${error instanceof Error ? error.message : String(error)}`);
+    process.exit(1);
   }
 }

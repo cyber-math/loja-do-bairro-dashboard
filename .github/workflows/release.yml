@@ -2,50 +2,47 @@ name: Release
 
 on:
   push:
-    tags: ['v*.*.*']
+    tags:
+      - 'v*.*.*'
 
 permissions:
   contents: write
 
-concurrency:
-  group: release-${{ github.ref_name }}
-  cancel-in-progress: false
-
 jobs:
-  publicar:
+  release:
     name: Publicar release
     runs-on: ubuntu-latest
     timeout-minutes: 10
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Node.js
-        uses: actions/setup-node@v7
+      - name: Node.js 22
+        uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 22
 
-      - name: Conferir tag x package.json
+      - name: Conferir tag contra o package.json
         run: node scripts/version.mjs --verify-tag "$GITHUB_REF_NAME"
 
       - name: Verificações
         run: npm run check
 
-      - name: Build versionado
+      - name: Build
         run: npm run build
 
-      - name: Empacotar site para download
+      - name: Empacotar o site
         run: |
           cd dist
           zip -qr "../loja-do-bairro-dashboard-${GITHUB_REF_NAME}.zip" .
           cd ..
-          ls -lh "loja-do-bairro-dashboard-${GITHUB_REF_NAME}.zip"
 
-      - name: Criar release com notas automáticas
+      - name: Criar release
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create "$GITHUB_REF_NAME" \
             "loja-do-bairro-dashboard-${GITHUB_REF_NAME}.zip" \

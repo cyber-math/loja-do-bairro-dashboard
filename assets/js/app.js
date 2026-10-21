@@ -100,7 +100,9 @@
     pageEstoque: 1,
     pageOS: 1,
     pageSize: 10,
-    osMode: 'tabela'
+    osMode: 'tabela',
+    configTab: 'aparencia',
+    adminTab: 'visao'
   };
 
   var sortState = {
@@ -117,7 +119,7 @@
     ordens: { titulo: 'Ordens de Serviço', sub: 'Chamados de manutenção, SLA e custos' },
     analytics: { titulo: 'Analytics', sub: 'Curva ABC, projeções, sazonalidade e fornecedores' },
     fornecedores: { titulo: 'Fornecedores', sub: 'Prazo, qualidade e participação no portfólio' },
-    config: { titulo: 'Configurações', sub: 'Preferências do painel e informações do PoC' }
+    config: { titulo: 'Configurações', sub: 'Preferências, segurança e administração da plataforma' }
   };
 
   function navegar(view) {
@@ -132,7 +134,8 @@
     if (view === 'ordens') renderOrdens();
     if (view === 'analytics') renderAnalytics();
     if (view === 'fornecedores') renderFornecedores();
-    if (view === 'config') renderConfig();
+    if (view === 'config') { renderConfig(); configTab(state.configTab); }
+    if (view !== 'config' && global.ADMIN && global.ADMIN.parar) global.ADMIN.parar();
     fecharSidebar();
     global.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -1389,6 +1392,89 @@
   }
 
   /* ------------------------------------------------------------------ *
+   * Configurações: abas, perfil e painel administrativo                 *
+   * ------------------------------------------------------------------ */
+  function configTab(aba) {
+    state.configTab = aba || 'aparencia';
+
+    $$('#settingsTabs .tab').forEach(function (b) {
+      var ativo = b.dataset.tab === state.configTab;
+      b.classList.toggle('is-active', ativo);
+      b.setAttribute('aria-selected', ativo ? 'true' : 'false');
+    });
+    $$('.tab-panel', $('#view-config')).forEach(function (p) {
+      p.classList.toggle('is-active', p.dataset.panel === state.configTab);
+    });
+
+    if (state.configTab === 'admin') montarAdmin(state.adminTab);
+    else if (global.ADMIN && global.ADMIN.parar) global.ADMIN.parar();
+  }
+
+  function montarAdmin(aba) {
+    if (!global.ADMIN) {
+      var root = $('#adminRoot');
+      if (root) root.innerHTML = '<div class="card" style="text-align:center;color:var(--muted);padding:32px">' +
+        '<strong style="color:var(--text)">Módulo administrativo indisponível</strong>' +
+        '<p style="margin-top:6px;font-size:12.5px">O arquivo <code>assets/js/admin.js</code> não foi carregado.</p></div>';
+      return;
+    }
+    try {
+      global.ADMIN.render('adminRoot');
+      if (global.ADMIN.abrir) global.ADMIN.abrir(aba || state.adminTab || 'visao');
+    } catch (e) {
+      console.error('[admin] falha ao montar painel', e);
+    }
+  }
+
+  function abrirConfig(aba) {
+    if (aba) state.configTab = aba;
+    navegar('config');
+  }
+
+  function abrirAdmin(aba) {
+    if (aba) state.adminTab = aba;
+    abrirConfig('admin');
+  }
+
+  /* --- Menu de perfil ------------------------------------------------- */
+  function toggleProfile(forcar) {
+    var menu = $('#profileMenu');
+    if (!menu) return;
+    var abrir = typeof forcar === 'boolean' ? forcar : menu.hidden;
+    menu.hidden = !abrir;
+    $('#profileWrap').classList.toggle('is-open', abrir);
+    $('#btnProfile').setAttribute('aria-expanded', abrir ? 'true' : 'false');
+  }
+
+  function acaoPerfil(acao) {
+    toggleProfile(false);
+    switch (acao) {
+      case 'perfil':
+        toast('Meu perfil', 'Marina Alves · gerente da loja 0042 · MFA ativo desde 12/03.', 'info');
+        break;
+      case 'preferencias':
+        abrirConfig('aparencia');
+        break;
+      case 'admin':
+        abrirAdmin('visao');
+        break;
+      case 'auditoria':
+        abrirAdmin('auditoria');
+        break;
+      case 'status':
+        abrirAdmin('infra');
+        break;
+      case 'transmissao':
+        abrirAdmin('transmissao');
+        toast('Transmissão ao vivo', 'Conectado ao barramento de eventos simulado.', 'ok');
+        break;
+      case 'sair':
+        toast('Sessão encerrada (simulação)', 'Em produção você seria redirecionado para o login.', 'warn');
+        break;
+    }
+  }
+
+  /* ------------------------------------------------------------------ *
    * Drawer de OS                                                       *
    * ------------------------------------------------------------------ */
   var osAberta = null;
@@ -1747,6 +1833,44 @@
       toast('Central de alertas', m.criticos.length + ' produtos críticos, ' + m.resumo.slaEstourado + ' SLA estourado(s) e ' + m.parados.length + ' SKUs parados.', 'warn');
     });
 
+    /* Configurações, perfil e admin */
+    $('#btnProfile').addEventListener('click', function (e) {
+      e.stopPropagation();
+      toggleProfile();
+    });
+    $$('[data-profile]').forEach(function (b) {
+      b.addEventListener('click', function (e) {
+        e.stopPropagation();
+        acaoPerfil(b.dataset.profile);
+      });
+    });
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('#profileWrap')) toggleProfile(false);
+    });
+
+    $$('#settingsTabs .tab').forEach(function (b) {
+      b.addEventListener('click', function () { configTab(b.dataset.tab); });
+    });
+
+    document.addEventListener('click', function (e) {
+      var sub = e.target.closest('.admin__tab');
+      if (sub && sub.dataset.admin) state.adminTab = sub.dataset.admin;
+    });
+
+    $$('#view-config .switch input').forEach(function (inp) {
+      if (inp.id === 'cfgAnim') return;
+      inp.addEventListener('change', function () {
+        var setting = inp.closest('.setting');
+        var nome = setting ? setting.querySelector('strong').textContent : 'Preferência';
+        toast('Preferência salva', nome + (inp.checked ? ' ativada.' : ' desativada.'), 'ok');
+      });
+    });
+
+    var btnRevogar = $('#btnRevogar');
+    if (btnRevogar) btnRevogar.addEventListener('click', function () {
+      toast('Sessões revogadas', 'Os 3 dispositivos seriam desconectados (simulação).', 'warn');
+    });
+
     /* Estoque */
     $('#estoqueBusca').addEventListener('input', debounce(function (e) { state.buscaEstoque = e.target.value; state.pageEstoque = 1; renderEstoque(); }, 220));
     $('#estoqueStatus').addEventListener('change', function (e) { state.statusEstoque = e.target.value; state.pageEstoque = 1; renderEstoque(); });
@@ -1844,7 +1968,7 @@
     /* Atalhos */
     document.addEventListener('keydown', function (e) {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); abrirPalette(); return; }
-      if (e.key === 'Escape') { fecharPalette(); fecharDrawer(); fecharSidebar(); }
+      if (e.key === 'Escape') { fecharPalette(); fecharDrawer(); fecharSidebar(); toggleProfile(false); }
       if (e.target.matches('input, select, textarea')) return;
       if (e.key >= '1' && e.key <= '4') {
         var alvo = ['dashboard', 'estoque', 'ordens', 'analytics'][parseInt(e.key, 10) - 1];
@@ -1901,6 +2025,16 @@
     registrarTabelasIniciais();
     montarPalette();
 
+    $$('[data-app-version]').forEach(function (el) {
+      el.textContent = (document.querySelector('meta[name="app-version"]') || {}).content || 'v1.0.0-poc';
+    });
+    $$('[data-app-commit]').forEach(function (el) {
+      el.textContent = (document.querySelector('meta[name="app-commit"]') || {}).content || 'demo';
+    });
+    $$('[data-app-channel]').forEach(function (el) {
+      el.textContent = (document.querySelector('meta[name="app-channel"]') || {}).content || 'github-pages';
+    });
+
     // preferências salvas
     var tema = 'dark', dens = 'normal';
     try { tema = localStorage.getItem('lb-tema') || 'dark'; dens = localStorage.getItem('lb-densidade') || 'normal'; } catch (e) {}
@@ -1938,11 +2072,22 @@
       var agora = new Date();
       $('#syncInfo').textContent = 'Sincronizado ' + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     }, 60000);
+
+    // status vivo das camadas de backend (simulação)
+    var camadas = ['api', 'db', 'queue', 'cdn'];
+    setInterval(function () {
+      $$('#layerStatus .layer').forEach(function (el) { el.classList.remove('is-warn', 'is-down'); });
+      if (Math.random() < 0.28) {
+        var alvo = camadas[Math.floor(Math.random() * camadas.length)];
+        var node = $('#layerStatus .layer[data-layer="' + alvo + '"]');
+        if (node) node.classList.add(Math.random() < 0.18 ? 'is-down' : 'is-warn');
+      }
+    }, 5000);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar);
   else iniciar();
 
   // expõe para depuração no console
-  global.LB = { state: state, render: renderViewAtual, navegar: navegar, DADOS: D, Charts: C };
+  global.LB = { state: state, render: renderViewAtual, navegar: navegar, abrirAdmin: abrirAdmin, toast: toast, DADOS: D, Charts: C };
 })(window);

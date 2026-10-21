@@ -291,6 +291,7 @@
         giroDia: giroDia,
         estoqueMin: estoqueMin,
         estoqueMax: estoqueMax,
+        estoqueInicial: estoqueInicial,
         empacotamento: empacotamento,
         fornecedorId: FORNECEDORES[pickWeighted([40, 22, 8, 14, 4, 6, 4, 5, 3, 4])].id,
         serieVendas: new Array(DIAS),
