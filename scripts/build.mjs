@@ -16,8 +16,16 @@ import { join, relative } from 'node:path';
 import { ROOT, resolveVersion } from './version.mjs';
 
 const DIST = join(ROOT, 'dist');
-const FILES = ['index.html', '.nojekyll', 'README.md'];
-const DIRS = ['assets'];
+const FILES = [
+  'index.html',
+  '404.html',
+  '.nojekyll',
+  'manifest.webmanifest',
+  'robots.txt',
+  'sitemap.xml',
+  'README.md',
+];
+const DIRS = ['assets', '.well-known'];
 
 function fail(message) {
   console.error(`erro: ${message}`);
@@ -71,6 +79,18 @@ html = stampMeta(html, 'app-version', info.version);
 html = stampMeta(html, 'app-commit', info.commit);
 html = stampMeta(html, 'app-channel', info.channelLabel);
 writeFileSync(indexPath, html);
+
+// Garante que toda referência local do HTML também foi publicada em dist/.
+const referencias = [...html.matchAll(/(?:src|href)="([^"]+)"/g)]
+  .map((m) => m[1])
+  .filter((url) => !/^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(url));
+
+for (const referencia of referencias) {
+  const caminho = referencia.split(/[?#]/)[0];
+  if (caminho && !existsSync(join(DIST, caminho))) {
+    fail(`referência local ausente no artefato — ${caminho}`);
+  }
+}
 
 const metadata = {
   version: info.version,

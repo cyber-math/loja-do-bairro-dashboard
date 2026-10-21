@@ -133,10 +133,11 @@
   function hash8(str) {
     var h = 0x811c9dc5;
     for (var i = 0; i < str.length; i++) {
-      h ^= str.charCodeAt(i);
-      h = Math.imul(h, 0x01000193);
+      h = ((h * 31) + str.charCodeAt(i)) | 0;
     }
-    return (h >>> 0).toString(16).padStart(8, '0');
+    var hex = (h >>> 0).toString(16);
+    while (hex.length < 8) hex = '0' + hex;
+    return hex;
   }
 
   var COR = {
