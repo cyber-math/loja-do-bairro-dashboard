@@ -143,6 +143,20 @@
   function abrirSidebar() { $('#sidebar').classList.add('is-open'); $('#scrim').classList.add('is-open'); }
   function fecharSidebar() { $('#sidebar').classList.remove('is-open'); $('#scrim').classList.remove('is-open'); }
 
+  /**
+   * Roteamento por hash — permite links externos (ex.: 404.html → ./#config)
+   * abrirem a view/aba correspondente.
+   */
+  function rotaHash() {
+    var bruto = (global.location.hash || '').replace('#', '');
+    if (!bruto) return;
+    var partes = bruto.split('/');
+    var view = partes[0];
+    if (!VIEW_META[view]) return;
+    navegar(view);
+    if (view === 'config' && partes[1]) configTab(partes[1]);
+  }
+
   /* ------------------------------------------------------------------ *
    * Dados derivados                                                     *
    * ------------------------------------------------------------------ */
@@ -185,7 +199,6 @@
 
     var os = osFiltradas();
     var resumo = D.resumoOS(os);
-    var resumoPrev = D.resumoOS(osFiltradas({ dias: state.dias }) && []);
 
     var clientes = soma(serie.clientes);
     var ticket = clientes ? atual.receita / clientes : 0;
@@ -195,7 +208,7 @@
       jan: jan, produtos: produtos, atual: atual, anterior: anterior, serie: serie,
       valorEstoque: valorEstoque, valorEstoque30: valorEstoque30,
       criticos: criticos, parados: parados,
-      os: os, resumo: resumo, resumoPrev: resumoPrev,
+      os: os, resumo: resumo,
       clientes: clientes, ticket: ticket, ticketPrev: ticketPrev
     };
   }
@@ -2072,6 +2085,10 @@
       var agora = new Date();
       $('#syncInfo').textContent = 'Sincronizado ' + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     }, 60000);
+
+    // links externos com hash (ex.: ./#config) abrem a view correspondente
+    global.addEventListener('hashchange', rotaHash);
+    rotaHash();
 
     // status vivo das camadas de backend (simulação)
     var camadas = ['api', 'db', 'queue', 'cdn'];

@@ -265,7 +265,7 @@ claro que o painel não é uma área autenticada.
 | Sem build de runtime | Sem minificação/transpilação | ES5 declarado e `node --check` | Bundler opcional |
 | Dados fictícios | Não serve para decisão real | Semente e avisos | Integração com ERP |
 | Sem impressão | Layout de impressão não é suportado | Nenhuma | `@media print` |
-| Documentação fora do artefato | `docs/` e `.well-known/` não são copiados por `build.mjs` | Leitura no GitHub | Incluir no build |
+| Documentação fora do artefato | `docs/` não é copiado por `build.mjs`; o `security.txt` é publicado, mas aponta para `docs/` | Leitura no GitHub | Incluir `docs/` no build |
 | Auditoria simulada | Hash de 32 bits, sem WORM real | Rotulado como simulação | Log imutável real |
 
 ## 9. Roadmap técnico
@@ -274,8 +274,8 @@ claro que o painel não é uma área autenticada.
 
 1. Service worker para cache do shell e do Chart.js, com estratégia
    stale-while-revalidate e versão de cache por build.
-2. Incluir `docs/` e `.well-known/` no artefato de build ou remover a promessa
-   de política publicada.
+2. Incluir `docs/` no artefato de build ou apontar a política do `security.txt`
+   para uma página existente.
 3. CSP em `<meta>` e SRI no loader do Chart.js.
 4. Corrigir a comparação de OS com o período anterior e o rótulo do hash da
    auditoria.
@@ -297,10 +297,11 @@ claro que o painel não é uma área autenticada.
 
 ## 10. Lacunas conhecidas desta baseline
 
-- `scripts/build.mjs` copia apenas `index.html`, `.nojekyll`, `README.md` e
-  `assets/`. Os documentos em `docs/` e o arquivo `.well-known/security.txt`
-  não são publicados no GitHub Pages. O link `Policy` do `security.txt` aponta
-  para `docs/SEGURANCA.md`, que existe no repositório, mas não no artefato.
+- `scripts/build.mjs` copia `index.html`, `404.html`, `.nojekyll`,
+  `manifest.webmanifest`, `robots.txt`, `sitemap.xml`, `README.md`, `assets/`
+  e `.well-known/`, mas não copia `docs/`. O `security.txt` é publicado no
+  GitHub Pages; seus links `Policy` e `Acknowledgments` apontam para
+  `docs/SEGURANCA.md`, que existe no repositório, mas não no artefato.
 - O painel administrativo é uma simulação. O hash da trilha de auditoria é
   FNV-1a de 32 bits (`hash8`), não SHA-256, apesar do rótulo da interface.
 - `assets/js/app.js` calcula `resumoPrev` com uma expressão que sempre resulta

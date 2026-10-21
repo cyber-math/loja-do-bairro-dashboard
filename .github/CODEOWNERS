@@ -1,0 +1,13 @@
+# CODEOWNERS
+# Revisão obrigatória por área. O mantenedor primário responde por todo o
+# repositório; regras mais específicas aparecem depois da regra geral.
+
+* @tiagocfonsecaba
+
+/assets/js/ @tiagocfonsecaba
+/assets/css/ @tiagocfonsecaba
+/scripts/ @tiagocfonsecaba
+/.github/ @tiagocfonsecaba
+/docs/ @tiagocfonsecaba
+/SECURITY.md @tiagocfonsecaba
+/CONTRIBUTING.md @tiagocfonsecaba

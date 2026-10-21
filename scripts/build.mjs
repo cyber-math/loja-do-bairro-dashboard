@@ -25,7 +25,7 @@ const FILES = [
   'sitemap.xml',
   'README.md',
 ];
-const DIRS = ['assets', '.well-known'];
+const DIRS = ['assets', '.well-known', 'docs'];
 
 function fail(message) {
   console.error(`erro: ${message}`);

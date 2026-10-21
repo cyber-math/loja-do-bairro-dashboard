@@ -7,6 +7,19 @@ versionamento segue o [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Não publicado]
 
+### Added
+
+- Documentação de operação e arquitetura (`docs/ARQUITETURA.md`, `docs/MANUTENCAO.md`, `docs/RUNBOOK.md`, `docs/SEGURANCA.md`, `docs/COMPLIANCE.md`, `docs/TESTES.md`), `SECURITY.md` na raiz e templates do GitHub (CODEOWNERS, issue template e pull request template).
+
+### Fixed
+
+- Séries de estoque não são mais `NaN`: o produto guarda `estoqueInicial`, então valor em estoque, cobertura média, SKUs abaixo do mínimo e o gráfico de cobertura exibem valores reais.
+- Fornecedores: `fornecedorId` referencia o ID real (`F01`–`F10`) e todo fornecedor garante ao menos um SKU, populando o scatter de desempenho e a tabela de portfólio.
+- Mapa de calor de sazonalidade usa as 52 semanas completas (histórico integral, semanas alinhadas de segunda a domingo) em vez da janela de 30 dias dos KPIs.
+- Credenciais de demonstração do painel administrativo deixaram de imitar o formato de chaves reais (AWS/Stripe).
+- `docs/` passou a ser publicado no artefato, então a URL de política do `security.txt` não retorna mais 404.
+- Links com hash (ex.: `./#config` na página 404) abrem a view correspondente.
+
 ## [1.0.0] - 2026-10-21
 
 ### Added

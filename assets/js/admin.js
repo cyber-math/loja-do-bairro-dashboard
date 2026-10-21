@@ -255,10 +255,10 @@
     { chave: 'REDIS_URL', real: 'redis://:a81f3d9c@redis-cache.loja.internal:6379/0', mask: 'redis://:••••••@redis-cache.loja.internal:6379/0', tipo: 'secret' },
     { chave: 'JWT_SECRET', real: 'HS256:8d41c2f7b9aa6e10d3f5', mask: 'HS256:••••••••••••••••', tipo: 'secret' },
     { chave: 'SMTP_PASSWORD', real: 'smtp-9c2f4ae1', mask: '••••••••', tipo: 'secret' },
-    { chave: 'S3_ACCESS_KEY', real: 'AKIA5T7Q2M4XZP6R', mask: 'AKIA••••••••••••', tipo: 'secret' },
+    { chave: 'S3_ACCESS_KEY', real: 'EXEMPLO-AWS-ACCESS-KEY-01', mask: 'EXEMPLO-••••••••••••', tipo: 'secret' },
     { chave: 'FEATURE_SALT', real: 'fs_71c9b2e8a4d0', mask: 'fs_••••••••••••', tipo: 'secret' },
     { chave: 'SENTRY_DSN', real: 'https://b7d1e4@o4507.ingest.sentry.io/450612', mask: 'https://••••••@o4507.ingest.sentry.io/450612', tipo: 'secret' },
-    { chave: 'WEBHOOK_SECRET', real: 'whsec_4f8a1c92d7be', mask: 'whsec_••••••••••••', tipo: 'secret' },
+    { chave: 'WEBHOOK_SECRET', real: 'exemplo-webhook-secret-01', mask: 'exemplo-••••••••••••', tipo: 'secret' },
     { chave: 'PG_POOL_MAX', real: '40', mask: '••', tipo: 'config' },
     { chave: 'LOG_LEVEL', real: 'info', mask: '••••', tipo: 'config' }
   ];
@@ -494,12 +494,12 @@
   }
 
   function tabelaJobsHTML() {
-    return '<div class="table-wrap"><table class="table"><thead><tr>' +
-      '<th scope="col">Job</th><th scope="col">Cron</th><th scope="col">Próxima execução</th>' +
-      '<th scope="col">Duração média</th><th scope="col">Último status</th></tr></thead><tbody>' +
+    return '<div class="table-wrap"><table class="table admin-table"><thead><tr>' +
+      '<th scope="col">Job</th><th scope="col">Cron</th><th scope="col">Próxima</th>' +
+      '<th scope="col">Duração</th><th scope="col">Status</th></tr></thead><tbody>' +
       JOBS.map(function (j) {
         return '<tr><td class="table__primary">' + esc(j.job) + '</td>' +
-          '<td class="mono">' + esc(j.cron) + '</td>' +
+          '<td class="mono" style="white-space:nowrap">' + esc(j.cron) + '</td>' +
           '<td>' + esc(j.proxima) + '</td>' +
           '<td class="num">' + esc(j.duracao) + '</td>' +
           '<td>' + chip(j.status, j.status === 'sucesso' ? 'ok' : 'low', true) + '</td></tr>';
@@ -518,7 +518,7 @@
   }
 
   function trilhaHTML() {
-    return '<div class="table-wrap"><table class="table"><thead><tr>' +
+    return '<div class="table-wrap"><table class="table admin-table"><thead><tr>' +
       '<th scope="col">Quando</th><th scope="col">Ator</th><th scope="col">Ação</th>' +
       '<th scope="col">Entidade</th><th scope="col">Resultado</th><th scope="col">Hash</th></tr></thead><tbody>' +
       AUDITORIA.slice(0, 5).map(function (e) {
@@ -545,7 +545,7 @@
   }
 
   function controlesHTML() {
-    return '<div class="table-wrap"><table class="table"><thead><tr>' +
+    return '<div class="table-wrap"><table class="table admin-table"><thead><tr>' +
       '<th scope="col">ID</th><th scope="col">Controle</th><th scope="col">Framework</th><th scope="col">Responsável</th>' +
       '<th scope="col">Evidência</th><th scope="col">Revisão</th><th scope="col">Status</th></tr></thead><tbody>' +
       CONTROLES.map(function (c) {
@@ -559,7 +559,7 @@
   }
 
   function retencaoHTML() {
-    return '<div class="table-wrap"><table class="table"><thead><tr>' +
+    return '<div class="table-wrap"><table class="table admin-table"><thead><tr>' +
       '<th scope="col">Dado</th><th scope="col">Base legal</th><th scope="col">Retenção</th>' +
       '<th scope="col">Anonimização</th><th scope="col">Status</th></tr></thead><tbody>' +
       RETENCAO.map(function (r) {
@@ -594,7 +594,7 @@
   }
 
   function lgpdHTML() {
-    return '<div class="table-wrap"><table class="table"><thead><tr>' +
+    return '<div class="table-wrap"><table class="table admin-table"><thead><tr>' +
       '<th scope="col">Titular</th><th scope="col">Tipo de solicitação</th><th scope="col">Prazo</th><th scope="col">Status</th></tr></thead><tbody>' +
       LGPD.map(function (l) {
         return '<tr><td class="mono">' + esc(l.titular) + '</td><td class="table__primary">' + esc(l.tipo) + '</td>' +
@@ -657,7 +657,7 @@
       ['RN-010', 'Fechamento 20/10 · pendente', 'Ação', '1,0 ms']
     ];
     var horas = [2, 9, 17, 26, 38, 55, 73, 96];
-    return '<div class="table-wrap"><table class="table"><thead><tr>' +
+    return '<div class="table-wrap"><table class="table admin-table"><thead><tr>' +
       '<th scope="col">Timestamp</th><th scope="col">Regra</th><th scope="col">Entrada</th><th scope="col">Resultado</th><th scope="col">Duração</th></tr></thead><tbody>' +
       linhas.map(function (l, i) {
         var ts = new Date(AGORA.getTime() - horas[i] * 60000);
@@ -688,7 +688,7 @@
   }
 
   function endpointsHTML() {
-    return '<div class="table-wrap"><table class="table"><thead><tr>' +
+    return '<div class="table-wrap"><table class="table admin-table"><thead><tr>' +
       '<th scope="col">Método</th><th scope="col">Rota</th><th scope="col">p95</th><th scope="col">Erro</th>' +
       '<th scope="col">Rate limit</th><th scope="col">Status</th></tr></thead><tbody>' +
       ENDPOINTS.map(function (e) {
@@ -712,7 +712,7 @@
   }
 
   function filasHTML() {
-    return '<div class="table-wrap"><table class="table"><thead><tr>' +
+    return '<div class="table-wrap"><table class="table admin-table"><thead><tr>' +
       '<th scope="col">Fila</th><th scope="col">Profundidade</th><th scope="col">Consumidores</th>' +
       '<th scope="col">Lag</th><th scope="col">DLQ</th><th scope="col">Status</th></tr></thead><tbody>' +
       FILAS.map(function (f) {
@@ -730,7 +730,7 @@
       ['fiscal.emit', 'v4', 'fiscal.emit.v4.xsd', 'Compatível com NFe 4.00', 'fiscal-svc, sefaz-gateway'],
       ['inventory.counted', 'v1', 'inventory.counted.v1.json', 'Em maturação (beta)', 'stock-svc, analytics']
     ];
-    return '<div class="table-wrap"><table class="table"><thead><tr>' +
+    return '<div class="table-wrap"><table class="table admin-table"><thead><tr>' +
       '<th scope="col">Evento</th><th scope="col">Versão</th><th scope="col">Schema</th>' +
       '<th scope="col">Compatibilidade</th><th scope="col">Consumidores</th></tr></thead><tbody>' +
       contratos.map(function (c) {
@@ -743,7 +743,7 @@
     return '<article class="card"><header class="card__head"><div><h2>Dead letter queue</h2>' +
       '<p class="card__sub">Mensagens que esgotaram as tentativas e exigem intervenção.</p></div>' +
       '<span class="chip chip--crit" id="adminDlqCount">' + DLQ.length + ' mensagens</span></header>' +
-      '<div class="table-wrap"><table class="table"><thead><tr>' +
+      '<div class="table-wrap"><table class="table admin-table"><thead><tr>' +
       '<th scope="col">Tópico</th><th scope="col">Motivo</th><th scope="col">Detalhe</th>' +
       '<th scope="col">Tentativas</th><th scope="col">Recebida</th><th scope="col">Ação</th></tr></thead>' +
       '<tbody id="adminDlqBody"></tbody></table></div></article>';
@@ -756,7 +756,7 @@
       var corSaude = a.saude >= 85 ? 'var(--green)' : a.saude >= 70 ? 'var(--amber)' : 'var(--red)';
       var corStatus = a.status === 'Operacional' ? 'ok' : a.status === 'Atenção' ? 'low' : a.status === 'Em manutenção' ? 'violet' : 'crit';
       var garantiaFora = diasAte(dataRel(a.garantia)) < 0;
-      return '<tr><td class="mono">' + a.tag + '</td>' +
+      return '<tr><td class="mono" style="white-space:nowrap">' + a.tag + '</td>' +
         '<td class="table__primary" title="' + esc(a.nome) + '">' + esc(a.nome) + '</td>' +
         '<td>' + esc(nomeCategoria(a.cat)) + '</td><td>' + esc(a.setor) + '</td>' +
         '<td>' + chip(a.criticidade, a.criticidade === 'Crítica' ? 'crit' : a.criticidade === 'Alta' ? 'low' : 'muted', false) + '</td>' +
@@ -801,7 +801,7 @@
   }
 
   function servicosInfraHTML() {
-    return '<div class="table-wrap"><table class="table"><thead><tr>' +
+    return '<div class="table-wrap"><table class="table admin-table"><thead><tr>' +
       '<th scope="col">Serviço</th><th scope="col">Réplicas</th><th scope="col">CPU</th><th scope="col">Memória</th>' +
       '<th scope="col">Versão</th><th scope="col">Uptime</th><th scope="col">p95</th><th scope="col">Status</th></tr></thead><tbody>' +
       INFRA_SERVICOS.map(function (s) {
@@ -816,7 +816,7 @@
   }
 
   function deploysHTML() {
-    return '<div class="table-wrap"><table class="table"><thead><tr>' +
+    return '<div class="table-wrap"><table class="table admin-table"><thead><tr>' +
       '<th scope="col">Commit</th><th scope="col">Autor</th><th scope="col">Ambiente</th><th scope="col">Status</th>' +
       '<th scope="col">Duração</th><th scope="col">Quando</th><th scope="col">Ação</th></tr></thead><tbody>' +
       DEPLOYS.map(function (d) {
@@ -837,7 +837,7 @@
   }
 
   function slosHTML() {
-    return '<div class="table-wrap"><table class="table"><thead><tr>' +
+    return '<div class="table-wrap"><table class="table admin-table"><thead><tr>' +
       '<th scope="col">SLO</th><th scope="col">Alvo</th><th scope="col">Atual</th><th scope="col">Orçamento de erro</th><th scope="col">Status</th></tr></thead><tbody>' +
       SLOs.map(function (s) {
         var cor = s.orcamento >= 50 ? 'var(--green)' : s.orcamento > 0 ? 'var(--amber)' : 'var(--red)';
@@ -870,11 +870,12 @@
    * ------------------------------------------------------------------ */
   function painelVisao() {
     var criticos = ATIVOS.filter(function (a) { return a.saude < 60; }).length;
+    var regrasAtivas = REGRAS.filter(function (r) { return r.ativa; }).length;
     var kpis =
       kpiHTML({ label: 'Uptime 30d', valor: '99,982%', foot: 'SLO 99,95% · +0,032 p.p.', cor: 'var(--green)', icone: 'i-trend-up' }) +
       kpiHTML({ label: 'Incidentes abertos', valor: '3', foot: '1 crítico · 2 em atenção', cor: 'var(--amber)', icone: 'i-alert' }) +
       kpiHTML({ label: 'Conformidade global', valor: '92%', foot: 'média ponderada · 4 frameworks', cor: 'var(--violet)', icone: 'i-check' }) +
-      kpiHTML({ label: 'Regras ativas', valor: '18/21', foot: '3 em revisão pelo compliance', cor: 'var(--blue)', icone: 'i-filter' }) +
+      kpiHTML({ label: 'Regras ativas', valor: regrasAtivas + '/' + REGRAS.length, foot: (REGRAS.length - regrasAtivas) + ' em revisão pelo compliance', cor: 'var(--blue)', icone: 'i-filter' }) +
       kpiHTML({ label: 'Ativos críticos', valor: String(criticos), foot: 'de 24 ativos monitorados', cor: 'var(--red)', icone: 'i-box' }) +
       kpiHTML({ label: 'DLQ', valor: String(DLQ.length), valorId: 'adminKpiVisaoDlq', foot: 'fiscal.emit 2 · notifications 2', cor: 'var(--amber)', icone: 'i-layers' });
 
@@ -1023,7 +1024,7 @@
       '<span class="chip chip--muted" id="adminAssetCount">' + ATIVOS.length + ' ativos</span></header>' +
       '<div class="admin-toolbar"><span class="filterbar__title">' + ico('i-filter') + 'Categoria</span>' +
       '<div class="seg" id="adminAssetFilters">' + filtros + '</div></div>' +
-      '<div class="table-wrap" style="margin-top:12px"><table class="table"><thead><tr>' +
+      '<div class="table-wrap" style="margin-top:12px"><table class="table admin-table" style="min-width:1180px"><thead><tr>' +
       '<th scope="col">TAG</th><th scope="col">Ativo</th><th scope="col">Categoria</th><th scope="col">Setor</th>' +
       '<th scope="col">Criticidade</th><th scope="col">Saúde</th><th scope="col">Status</th><th scope="col">MTBF (h)</th>' +
       '<th scope="col">MTTR (h)</th><th scope="col">Preventiva</th><th scope="col">Garantia</th><th scope="col">Ação</th></tr></thead>' +
@@ -1094,7 +1095,7 @@
       '<select class="select" id="adminAuditPeriod" aria-label="Filtrar por período">' + perOpts + '</select>' +
       '<div class="search">' + ico('i-search') + '<input id="adminAuditSearch" type="search" value="' + esc(S.auditBusca) + '" placeholder="Ator, entidade ou IP" aria-label="Buscar na auditoria"></div>' +
       '<button type="button" class="btn btn--sm btn--ghost" data-audit-clear="1">' + ico('i-x') + 'Limpar</button></div>' +
-      '<div class="table-wrap" style="margin-top:12px"><table class="table"><thead><tr>' +
+      '<div class="table-wrap" style="margin-top:12px"><table class="table admin-table"><thead><tr>' +
       '<th scope="col">Timestamp</th><th scope="col">Ator</th><th scope="col">Papel</th><th scope="col">Ação</th>' +
       '<th scope="col">Entidade</th><th scope="col">IP</th><th scope="col">Resultado</th><th scope="col">Hash</th></tr></thead>' +
       '<tbody id="adminAuditBody"></tbody></table></div></article>' +
@@ -1139,7 +1140,7 @@
     }).join('');
 
     return '<div class="admin">' +
-      '<div class="admin__bar"><nav class="admin__nav" role="tablist" aria-label="Painel administrativo">' + nav + '</nav>' +
+      '<div class="admin__bar" style="top:calc(var(--topbar-h, 68px) + 12px)"><nav class="admin__nav" role="tablist" aria-label="Painel administrativo">' + nav + '</nav>' +
       '<div class="admin__tools"><span class="chip chip--low" title="Ambiente de demonstração: nenhuma transmissão real é enviada"><i></i>ambiente: produção-sim</span>' +
       '<button type="button" class="btn btn--sm btn--ghost" data-admin-export="1">' + ico('i-download') + 'Exportar auditoria</button></div></div>' +
       '<div class="admin__panels">' + paineis + '</div></div>';
@@ -1856,7 +1857,7 @@
   }
 
   function linhaHTML(ev) {
-    var btn = '<button type="button" class="btn btn--ghost btn--sm" data-stream-expand aria-expanded="false" aria-label="Expandir payload do evento ' + esc(ev.tipo) + '" title="Ver payload JSON">' + ico('i-layers') + '</button>';
+    var btn = '<button type="button" class="btn btn--ghost btn--sm" data-stream-expand aria-expanded="false" aria-label="Expandir payload do evento ' + esc(ev.tipo) + '" title="Ver payload JSON" style="width:18px;height:18px;padding:0;border:0;background:transparent;justify-content:center;color:var(--muted)">' + ico('i-layers') + '</button>';
     var json = JSON.stringify(ev.payload, null, 2);
     return '<div class="stream__row' + (ev.status !== 'entregue' ? ' is-err' : '') + '" data-event-id="' + esc(ev.id) + '">' +
       '<div class="stream__cell mono">' + esc(horaSeg(ev.ts)) + '</div>' +

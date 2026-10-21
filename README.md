@@ -1,106 +1,110 @@
 # Loja do Bairro · Painel de Operações
 
-PoC de dashboard operacional para uma loja de bairro, reunindo estoque, ordens de serviço e analytics em uma única página estática.
+PoC de painel operacional para uma rede de lojas de bairro: estoque, ordens de serviço, analytics e administração de plataforma em uma página estática.
 
-**GitHub Pages ready** · **sem bundler** · **versionamento semântico**
+**GitHub Pages ready** · **zero build no runtime** · **dados 100% no navegador**
+
+> Artefato de avaliação da disciplina **Manutenção de Sistemas**: demonstra manutenção **de sistema** (corretiva, adaptativa, evolutiva, preventiva e perfectiva) e manutenção **de operações** (SLA, ativos, transmissão, compliance e infraestrutura).
 
 ## O que tem dentro
 
-- KPIs de receita, lucro, margem, ticket médio, ruptura e ordens de serviço.
-- Gráficos com Chart.js via CDN: evolução financeira, categorias, volume, status das OS, saúde do estoque e top produtos.
-- Tabela de estoque com filtros, ordenação por coluna e paginação.
-- Ordens de serviço com tabela, quadro kanban e drawer de detalhe.
-- Curva ABC de faturamento.
-- Projeção com regressão linear.
-- Mapa de calor das últimas 52 semanas.
-- Fornecedores com indicadores de prazo, custo e portfólio.
+- KPIs de receita, lucro, margem, ticket médio, ruptura de estoque e ordens de serviço.
+- Gráficos Chart.js: evolução financeira, categorias, volume x ticket, status das OS, saúde do estoque e top produtos.
+- Tabela de estoque com busca, filtros, ordenação por coluna e paginação.
+- Ordens de serviço com tabela, quadro kanban, drawer de detalhe e ações simuladas (concluir, reatribuir, cancelar).
+- Curva ABC de faturamento, projeção por regressão linear e faixa de confiança.
+- Mapa de calor de 52 semanas e donut de motivos de chamado.
+- Fornecedores com prazo, qualidade, participação e rating.
 - Exportação CSV dos dados filtrados.
-- Busca rápida com Ctrl+K.
-- Tema claro/escuro com preferência salva no navegador.
-- Layout responsivo para desktop, tablet e celular.
-- Menu de perfil e abas de configurações (aparência, notificações, segurança e administração).
-- Painel administrativo com KPIs, mapa de risco, saúde dos ativos, auditoria exportável, topologia e stream de eventos simulado.
+- Busca rápida com `Ctrl+K`, tema claro/escuro e densidade configurável.
+- Layout responsivo (desktop, tablet e 360 px), sem rolagem horizontal.
+- PWA instalável (`manifest.webmanifest`), página 404 temática, `robots.txt`, `sitemap.xml` e `.well-known/security.txt`.
+
+## Painel administrativo
+
+Fica em **Configurações → Painel administrativo** e também no menu do avatar (`Painel administrativo`, `Trilha de auditoria`, `Status da plataforma`, `Simulação de transmissão`). São 8 sub-abas:
+
+| Aba | O que demonstra |
+| --- | --- |
+| Visão geral | Uptime, incidentes, conformidade global, regras ativas, ativos críticos, DLQ e próximos jobs. |
+| Compliance | LGPD, ISO 27001, PCI-DSS e SOC 2; controles e evidências, retenção, matriz de risco e solicitações de titulares. |
+| Regras de negócio | Motor de 12 regras com condição/ação, liga/desliga, contadores de execução e simulador de decisão. |
+| Backend | Feature flags, variáveis de ambiente mascaradas, endpoints, pool de banco, cache e filas. |
+| Transmissão | Simulação **ao vivo** do barramento de eventos: throughput, latência p50/p95, taxa de erro, DLQ, console com payload JSON, pausar/retomar e injetar falha. |
+| Ativos | 24 ativos físicos com saúde, criticidade, MTBF, MTTR, garantia, preventiva e ciclo de vida. |
+| Infraestrutura | Diagrama de arquitetura em camadas, saúde dos serviços, deploys com rollback, backup/DR, SLOs e logs. |
+| Auditoria | Trilha hash-chain com 30 eventos, filtros, integridade e exportação CSV. |
+
+O indicador **API · DB · Fila · CDN** na barra lateral simula o status vivo das camadas de backend e reage a degradações.
+
+## Cobertura de manutenção
+
+| Tipo | Como aparece no artefato |
+| --- | --- |
+| Corretiva | Correção de cálculo de total, remoção por índice, validação de formulário, XSS e contraste. |
+| Adaptativa | Formatação BRL, responsividade em 360 px, PWA, tema claro/escuro e fallback de CDN. |
+| Evolutiva | Busca, edição, persistência, painel admin, transmissão ao vivo e curva ABC. |
+| Preventiva | CI com `npm run check`, versionamento, dependabot, checklist de release e SLOs. |
+| Perfectiva | Design system, acessibilidade, animações, densidade e atalhos de teclado. |
+
+A matriz detalhada, com arquivos e testes, está em [`docs/MANUTENCAO.md`](docs/MANUTENCAO.md).
 
 ## Como rodar localmente
 
-Opção 1: abra o arquivo `index.html` diretamente no navegador.
+Opção 1 — abra `index.html` direto no navegador.
 
-Opção 2: use o servidor estático incluído (Node.js 22+):
+Opção 2 — servidor estático incluído (Node.js 22+):
 
 ```bash
 cd loja-do-bairro-dashboard
 npm start
 ```
 
-`npm start` serve `dist/` quando o build existe — assim você pré-visualiza exatamente o artefato publicado, com versão e commit carimbados. Sem `dist/`, serve a raiz do projeto. A porta padrão é `8000` (use `PORT=3000 npm start` para trocar).
+`npm start` serve `dist/` quando ele existe (artefato com versão carimbada) e, na ausência, serve a raiz do projeto. A porta padrão é `8000` (`PORT=3000 npm start` para trocar).
 
-Opção 3: qualquer outro servidor HTTP local:
+Opção 3 — qualquer servidor HTTP:
 
 ```bash
-cd loja-do-bairro-dashboard
 python -m http.server 8000
 ```
 
-Depois acesse `http://localhost:8000`.
-
-O Chart.js é carregado de CDN (jsDelivr, com fallback para unpkg e cdnjs), portanto os gráficos exigem conexão com a internet. Sem conexão, os KPIs, tabelas e demais dados continuam funcionando, mas os gráficos não são renderizados.
+O Chart.js é carregado de CDN (jsDelivr, com fallback para unpkg e cdnjs). Sem internet, KPIs, tabelas e o painel admin continuam funcionando; apenas os gráficos não são desenhados.
 
 ## CI/CD e versionamento
 
 O deploy é automático: não existe branch `gh-pages` nem cópia manual de arquivos.
 
-### Pipelines
-
 | Workflow | Gatilho | O que faz |
 | --- | --- | --- |
-| `ci.yml` | pull request, push em `main`, manual | Valida referências locais, sintaxe dos scripts e marcadores de build; gera o artefato em `dist/`. |
-| `pages.yml` | push em `main`, manual | Roda as verificações, carimba a versão e publica `dist/` no GitHub Pages. |
-| `release.yml` | tag `v*.*.*` | Confere a tag contra o `package.json`, cria a release com notas automáticas e anexa o site em `.zip`. |
+| `ci.yml` | pull request, push em `main`, manual | Valida referências, sintaxe dos scripts e IDs; gera `dist/`. |
+| `pages.yml` | push em `main`, manual | Roda as verificações, carimba a versão e publica `dist/` no Pages. |
+| `release.yml` | tag `v*.*.*` | Confere a tag, cria a release com notas e anexa o site em `.zip`. |
 
 O build não tem dependências externas: `scripts/build.mjs` copia o site para `dist/` e carimba `<meta name="app-version">`, `<meta name="app-commit">` e `<meta name="app-channel">`, além de gerar `dist/version.json`. Os valores aparecem na barra lateral e em **Configurações → Sobre o PoC**.
 
 ### Primeira publicação
 
-Pré-requisitos: Git e GitHub CLI autenticado (`gh auth login`).
-
 ```bash
 cd loja-do-bairro-dashboard
 git init
 git add .
-git commit -m "feat: painel operacional com CI/CD no GitHub Pages"
+git commit -m "feat: painel operacional com painel admin e CI/CD"
 git branch -M main
 gh repo create loja-do-bairro-dashboard --public --source=. --remote=origin --push
 ```
 
-Depois, no repositório, abra **Settings → Pages → Build and deployment** e selecione **Source: GitHub Actions**. O push em `main` já dispara o deploy; o site fica em `https://<usuario>.github.io/loja-do-bairro-dashboard/`.
-
-Se o repositório já existir, basta apontar o remoto:
-
-```bash
-git remote add origin https://github.com/<usuario>/loja-do-bairro-dashboard.git
-git push -u origin main
-```
+Depois, em **Settings → Pages → Build and deployment**, selecione **Source: GitHub Actions**. O push em `main` publica em `https://<usuario>.github.io/loja-do-bairro-dashboard/`.
 
 ### Como lançar uma versão
 
-O `package.json` é a fonte da versão. Os atalhos criam commit e tag juntos:
+O `package.json` é a fonte da versão:
 
 ```bash
-npm run release:patch   # 1.0.0 → 1.0.1 (correções)
-npm run release:minor   # 1.0.0 → 1.1.0 (novidades)
-npm run release:major   # 1.0.0 → 2.0.0 (quebra de compatibilidade)
+npm run release:patch   # 1.0.0 → 1.0.1
+npm run release:minor   # 1.0.0 → 1.1.0
+npm run release:major   # 1.0.0 → 2.0.0
 git push --follow-tags
 ```
-
-O push em `main` publica o site; o push da tag publica a release, com notas geradas a partir dos commits e o site empacotado em `loja-do-bairro-dashboard-v1.0.1.zip`.
-
-O canal exibido no painel indica a origem do build:
-
-| Canal | Origem |
-| --- | --- |
-| `Release · tag` | build de uma tag `vX.Y.Z` |
-| `Branch · main` | build do topo de `main` |
-| `Local · sem CI` | `npm run build` na sua máquina (com sufixo `-dirty` se houver alterações não commitadas) |
 
 Mantenha a árvore limpa antes de rodar `npm run release:*` — o `npm version` commita o `package.json` e cria a tag no commit atual.
 
@@ -108,39 +112,59 @@ Mantenha a árvore limpa antes de rodar `npm run release:*` — o `npm version` 
 
 | Comando | Descrição |
 | --- | --- |
-| `npm run check` | Executa as mesmas verificações da CI. |
+| `npm run check` | Executa as verificações da CI (referências, sintaxe, IDs, encoding). |
 | `npm run build` | Gera `dist/` com versão e commit carimbados. |
 | `npm start` | Pré-visualiza `dist/` (ou a raiz) em `http://localhost:8000`. |
-| `node scripts/version.mjs` | Mostra a versão que o próximo build usaria. |
-
-Os workflows usam apenas actions oficiais (`actions/*`) e o `GITHUB_TOKEN`, sem secrets extras. O Dependabot abre um PR semanal para mantê-las atualizadas.
+| `node scripts/version.mjs` | Mostra a versão e o canal do próximo build. |
 
 ## Estrutura de arquivos
 
 ```text
 loja-do-bairro-dashboard/
 ├── index.html
+├── 404.html
+├── manifest.webmanifest
+├── robots.txt
+├── sitemap.xml
+├── .well-known/
+│   └── security.txt
 ├── assets/
 │   ├── css/
-│   │   └── styles.css
+│   │   ├── styles.css
+│   │   └── admin.css
+│   ├── img/
+│   │   ├── icon.svg
+│   │   └── icon-maskable.svg
 │   └── js/
 │       ├── data.js
 │       ├── charts.js
+│       ├── admin.js
 │       └── app.js
+├── docs/
+│   ├── ARQUITETURA.md
+│   ├── MANUTENCAO.md
+│   ├── RUNBOOK.md
+│   ├── SEGURANCA.md
+│   ├── COMPLIANCE.md
+│   └── TESTES.md
 ├── scripts/
 │   ├── build.mjs
 │   ├── check.mjs
 │   ├── serve.mjs
 │   └── version.mjs
 ├── .github/
-│   ├── workflows/
-│   │   ├── ci.yml
-│   │   ├── pages.yml
-│   │   └── release.yml
-│   └── dependabot.yml
+│   ├── workflows/ (ci.yml, pages.yml, release.yml)
+│   ├── ISSUE_TEMPLATE/
+│   ├── CODEOWNERS
+│   ├── dependabot.yml
+│   └── pull_request_template.md
 ├── package.json
 ├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── SECURITY.md
+├── .editorconfig
 ├── .gitattributes
+├── .nvmrc
 ├── .nojekyll
 ├── .gitignore
 └── README.md
@@ -148,27 +172,37 @@ loja-do-bairro-dashboard/
 
 ## Sobre os dados
 
-Os dados são inteiramente fictícios e gerados no navegador com o PRNG determinístico **mulberry32**, usando a semente **20260421**. O dataset contém aproximadamente 102 produtos, 168 ordens de serviço e 540 dias simulados (cerca de 18 meses de histórico).
+Os dados são fictícios e gerados no navegador com o PRNG determinístico **mulberry32**, semente **20260421**. O dataset contém 101 produtos, 168 ordens de serviço e 540 dias simulados (cerca de 18 meses de histórico).
 
-Nenhum dado sai do navegador: não há chamadas de API para carregar informações nem envio de dados para servidores. Para gerar outro dataset, altere a constante `SEED` em `assets/js/data.js` e recarregue a página; produtos, histórico, ordens e indicadores serão recalculados a partir da nova semente.
+Nenhum dado sai do navegador: não há chamadas de API para carregar informações nem envio de dados para servidores. Para gerar outro dataset, altere a constante `SEED` em `assets/js/data.js` e recarregue a página.
 
 ## Limitações do PoC
 
 - Todos os dados são fictícios e não representam uma operação real.
 - Não há backend, banco de dados ou persistência entre sessões.
-- As ações do drawer de ordens de serviço não são persistidas.
-- Os gráficos dependem do Chart.js via CDN e, portanto, de conexão com a internet.
-- Não há autenticação, controle de acesso ou suporte a múltiplos usuários.
+- As ações do drawer de OS e do painel admin são simuladas e não persistem.
+- A autenticação, o MFA, as chaves de API e a transmissão de eventos são encenações visuais.
+- Os gráficos dependem do Chart.js via CDN.
+- Não há controle de acesso real nem suporte a múltiplos usuários.
 
 ## Atalhos de teclado
 
 | Atalho | Ação |
 | --- | --- |
-| `1` | Ir para Dashboard |
-| `2` | Ir para Estoque |
-| `3` | Ir para Ordens de serviço |
-| `4` | Ir para Analytics |
-| `Ctrl+K` | Abrir busca rápida |
-| `Esc` | Fechar busca, drawer ou menu lateral |
+| `1` | Dashboard |
+| `2` | Estoque |
+| `3` | Ordens de serviço |
+| `4` | Analytics |
+| `Ctrl+K` | Busca rápida |
+| `Esc` | Fecha busca, drawer, perfil ou menu lateral |
 
-Os atalhos numéricos são ignorados enquanto o foco está em um campo de texto, seleção ou área de edição.
+## Documentação
+
+- [Arquitetura](docs/ARQUITETURA.md)
+- [Manutenção](docs/MANUTENCAO.md)
+- [Runbook operacional](docs/RUNBOOK.md)
+- [Segurança](docs/SEGURANCA.md)
+- [Compliance](docs/COMPLIANCE.md)
+- [Testes](docs/TESTES.md)
+- [Contribuição](CONTRIBUTING.md)
+- [Política de segurança](SECURITY.md)
