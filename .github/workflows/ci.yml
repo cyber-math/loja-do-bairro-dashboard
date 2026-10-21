@@ -1,5 +1,7 @@
 name: CI
 
+# Verificações e build da branch principal.
+
 on:
   pull_request:
   push:

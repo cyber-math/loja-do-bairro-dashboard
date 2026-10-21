@@ -1,5 +1,7 @@
 name: Release
 
+# Publica releases a partir das tags v*.*.*
+
 on:
   push:
     tags:

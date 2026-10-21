@@ -1,5 +1,7 @@
 name: Deploy · GitHub Pages
 
+# Publica o site em https://cyber-math.github.io/loja-do-bairro-dashboard/
+
 on:
   push:
     branches: [main]
