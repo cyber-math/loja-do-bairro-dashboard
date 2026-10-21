@@ -1373,3 +1373,20 @@
   }
 }
 
+
+/* -------------------------------------------------------------------------
+   Ajuste fino: tabelas largas do admin cabem em 1440px sem corte
+   ------------------------------------------------------------------------- */
+.admin__panel .admin-table { font-size: 12.5px; }
+.admin__panel .admin-table thead th {
+  padding-inline: 7px; font-size: 9.5px; letter-spacing: .045em;
+}
+.admin__panel .admin-table tbody td { padding-inline: 7px; }
+
+.admin .table-wrap { scrollbar-width: thin; scrollbar-color: var(--surface-3) transparent; }
+.admin .table-wrap::-webkit-scrollbar { height: 8px; }
+.admin .table-wrap::-webkit-scrollbar-track { background: transparent; }
+.admin .table-wrap::-webkit-scrollbar-thumb {
+  background: var(--surface-3); border-radius: 99px;
+}
+.admin .table-wrap::-webkit-scrollbar-thumb:hover { background: var(--faint); }

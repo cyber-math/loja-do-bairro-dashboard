@@ -1663,7 +1663,15 @@
       { grupo: 'Ações', icone: 'i-sun', texto: 'Alternar tema claro/escuro', acao: alternarTema },
       { grupo: 'Ações', icone: 'i-refresh', texto: 'Limpar todos os filtros', acao: limparFiltros },
       { grupo: 'Ações', icone: 'i-download', texto: 'Exportar estoque em CSV', acao: function () { exportarEstoque(); } },
-      { grupo: 'Ações', icone: 'i-tool', texto: 'Filtrar OS com SLA estourado', acao: function () { state.statusOS = 'todas'; navegar('ordens'); toast('Filtro', 'Use os chips de status para refinar a fila.', 'info'); } }
+      { grupo: 'Ações', icone: 'i-tool', texto: 'Filtrar OS com SLA estourado', acao: function () { state.statusOS = 'todas'; navegar('ordens'); toast('Filtro', 'Use os chips de status para refinar a fila.', 'info'); } },
+      { grupo: 'Administração', icone: 'i-layers', texto: 'Painel administrativo — visão geral', acao: function () { abrirAdmin('visao'); } },
+      { grupo: 'Administração', icone: 'i-check', texto: 'Compliance e controles', acao: function () { abrirAdmin('compliance'); } },
+      { grupo: 'Administração', icone: 'i-gear', texto: 'Regras de negócio', acao: function () { abrirAdmin('regras'); } },
+      { grupo: 'Administração', icone: 'i-command', texto: 'Feature flags e backend', acao: function () { abrirAdmin('backend'); } },
+      { grupo: 'Administração', icone: 'i-refresh', texto: 'Transmissão ao vivo', acao: function () { abrirAdmin('transmissao'); } },
+      { grupo: 'Administração', icone: 'i-box', texto: 'Ativos físicos', acao: function () { abrirAdmin('ativos'); } },
+      { grupo: 'Administração', icone: 'i-grid', texto: 'Infraestrutura e arquitetura', acao: function () { abrirAdmin('infra'); } },
+      { grupo: 'Administração', icone: 'i-clock', texto: 'Trilha de auditoria', acao: function () { abrirAdmin('auditoria'); } }
     ];
 
     var vistos = {};
@@ -2037,16 +2045,6 @@
     ligarEventos();
     registrarTabelasIniciais();
     montarPalette();
-
-    $$('[data-app-version]').forEach(function (el) {
-      el.textContent = (document.querySelector('meta[name="app-version"]') || {}).content || 'v1.0.0-poc';
-    });
-    $$('[data-app-commit]').forEach(function (el) {
-      el.textContent = (document.querySelector('meta[name="app-commit"]') || {}).content || 'demo';
-    });
-    $$('[data-app-channel]').forEach(function (el) {
-      el.textContent = (document.querySelector('meta[name="app-channel"]') || {}).content || 'github-pages';
-    });
 
     // preferências salvas
     var tema = 'dark', dens = 'normal';

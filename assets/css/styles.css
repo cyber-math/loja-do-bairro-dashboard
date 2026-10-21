@@ -785,3 +785,14 @@ html[data-theme="dark"] .seg__btn.is-active { background: var(--surface-3); }
 }
 .about__docs a { color: var(--brand); text-decoration: none; font-weight: 600; }
 .about__docs a:hover { text-decoration: underline; }
+
+/* -------------------------------------------------------------------------
+   24. Tabelas compactas nas abas de Configurações (meia largura)
+   ------------------------------------------------------------------------- */
+.tab-panel .table { font-size: 12.5px; }
+.tab-panel .table thead th {
+  padding: 8px 7px; font-size: 10px; letter-spacing: .05em;
+}
+.tab-panel .table tbody td { padding: 11px 7px; }
+.tab-panel .table .mono { font-size: 11.5px; }
+.tab-panel .table__sub { font-size: 10.5px; }
