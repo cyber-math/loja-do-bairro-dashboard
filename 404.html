@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 · Página não encontrada · Loja do Bairro</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2310b981'/><path d='M28 62l14 14 30-32' stroke='%23052e21' stroke-width='12' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css">
+<style>
+  .erro {
+    min-height: 100vh; display: grid; place-items: center; padding: 24px;
+  }
+  .erro__box {
+    width: min(560px, 100%); background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: 38px 34px;
+    text-align: center;
+  }
+  .erro__code {
+    font-family: var(--mono); font-size: 12px; letter-spacing: .28em; color: var(--brand);
+    text-transform: uppercase;
+  }
+  .erro__title { font-size: 30px; letter-spacing: -.03em; margin: 14px 0 10px; }
+  .erro__text { color: var(--muted); font-size: 14px; line-height: 1.7; }
+  .erro__actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 24px; }
+  .erro__meta {
+    margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; gap: 12px;
+    font-size: 11px; color: var(--faint); font-family: var(--mono);
+  }
+  .erro__logo {
+    width: 46px; height: 46px; border-radius: 13px; margin: 0 auto 18px;
+    display: grid; place-items: center; color: var(--brand-ink); font-weight: 800; font-size: 14px;
+    background: linear-gradient(140deg, var(--brand-2), var(--brand));
+    box-shadow: 0 12px 26px -12px rgba(16,185,129,.8);
+  }
+</style>
+</head>
+<body>
+  <main class="erro">
+    <div class="erro__box">
+      <div class="erro__logo">LB</div>
+      <p class="erro__code">erro 404 · rota inexistente</p>
+      <h1 class="erro__title">Esta página saiu do estoque</h1>
+      <p class="erro__text">
+        O endereço acessado não existe neste painel. Pode ter sido movido em uma manutenção
+        ou o link está incorreto. Nenhum dado foi alterado.
+      </p>
+      <div class="erro__actions">
+        <a class="btn btn--soft" href="./">Voltar ao painel</a>
+        <a class="btn btn--ghost" href="./#config">Abrir configurações</a>
+      </div>
+      <div class="erro__meta">
+        <span>loja-do-bairro · github pages</span>
+        <span>trace: 404</span>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

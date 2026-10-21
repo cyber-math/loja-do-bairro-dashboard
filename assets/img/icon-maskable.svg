@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Loja do Bairro">
+  <rect width="512" height="512" fill="#080d18"/>
+  <circle cx="256" cy="256" r="180" fill="#10b981"/>
+  <path d="M168 268l34 34 66-72" fill="none" stroke="#052e21" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M302 200h84M302 256h84M302 312h54" fill="none" stroke="#052e21" stroke-width="22" stroke-linecap="round" opacity=".85"/>
+</svg>
