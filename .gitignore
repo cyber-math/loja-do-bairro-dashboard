@@ -1,0 +1,14 @@
+# Dependências e artefatos locais
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
+
+# Configurações de editor
+.vscode/
+
+# Nenhum arquivo do site é ignorado: index.html, assets/, .nojekyll e README.md
+# permanecem versionados para publicação direta no GitHub Pages.
+
+# Artefato de build (gerado por scripts/build.mjs)
+dist/

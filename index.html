@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loja do Bairro · Painel de Operações</title>
+<meta name="description" content="PoC de dashboard operacional — estoque, ordens de serviço e analytics da Loja do Bairro.">
+<meta name="color-scheme" content="dark light">
+
+<!-- Carimbados pelo build (scripts/build.mjs). Não edite manualmente. -->
+<meta name="app-version" content="0.0.0-dev">
+<meta name="app-commit" content="local">
+<meta name="app-channel" content="local">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2310b981'/><path d='M28 62l14 14 30-32' stroke='%23052e21' stroke-width='12' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+</head>
+<body>
+
+<!-- ===================== Sprite de ícones ===================== -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-grid" viewBox="0 0 24 24"><path d="M4 13h6V4H4v9Zm0 7h6v-5H4v5Zm10 0h6v-9h-6v9Zm0-16v5h6V4h-6Z"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M3 8l9-5 9 5v8l-9 5-9-5V8Zm9 5 9-5M12 13v8M7.5 5.5l9 5"/></symbol>
+  <symbol id="i-tool" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0 5 5l-9.4 9.4a2.1 2.1 0 0 1-3-3L16.7 8.3Z"/><path d="M14.7 6.3 17 4a4 4 0 0 1 3 3l-2.3 2.3"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8M13.7 20a2 2 0 0 1-3.4 0"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 6.1M20 5v6h-6"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24"><path d="M3 5h18l-7 8v6l-4 2v-8L3 5Z"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3Zm0 6v5m0 3v.01"/></symbol>
+  <symbol id="i-trend-up" viewBox="0 0 24 24"><path d="m3 17 6-6 4 4 8-8M15 7h6v6"/></symbol>
+  <symbol id="i-trend-down" viewBox="0 0 24 24"><path d="m3 7 6 6 4-4 8 8M15 17h6v-6"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12 5 5L20 6"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 21h16"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4ZM14 6l4 4"/></symbol>
+  <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 7h11v9H2V7Zm11 3h4l3 3v3h-7v-6ZM6 19a1.8 1.8 0 1 0 0-3.6A1.8 1.8 0 0 0 6 19Zm11 0a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6Z"/></symbol>
+  <symbol id="i-command" viewBox="0 0 24 24"><path d="M9 6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6Z"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5 9-5Zm9 9-9 5-9-5m18 4-9 5-9-5"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4"/></symbol>
+</svg>
+
+<!-- ===================== Loader ===================== -->
+<div id="boot" class="boot">
+  <div class="boot__inner">
+    <div class="boot__logo">LB</div>
+    <div class="boot__bar"><span></span></div>
+    <p class="boot__txt">Carregando dados da loja…</p>
+  </div>
+</div>
+
+<div class="app" id="app" hidden>
+
+  <!-- ===================== Sidebar ===================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__brand">
+      <div class="brand__mark">LB</div>
+      <div class="brand__text">
+        <strong>Loja do Bairro</strong>
+        <span>Painel de Operações</span>
+      </div>
+    </div>
+
+    <nav class="nav" id="nav">
+      <p class="nav__label">Visão geral</p>
+      <button class="nav__item is-active" data-view="dashboard">
+        <svg class="ico"><use href="#i-grid"/></svg><span>Dashboard</span><kbd>1</kbd>
+      </button>
+      <button class="nav__item" data-view="estoque">
+        <svg class="ico"><use href="#i-box"/></svg><span>Estoque</span><kbd>2</kbd>
+      </button>
+      <button class="nav__item" data-view="ordens">
+        <svg class="ico"><use href="#i-tool"/></svg><span>Ordens de Serviço</span><kbd>3</kbd>
+      </button>
+      <button class="nav__item" data-view="analytics">
+        <svg class="ico"><use href="#i-chart"/></svg><span>Analytics</span><kbd>4</kbd>
+      </button>
+
+      <p class="nav__label">Loja</p>
+      <button class="nav__item" data-view="fornecedores">
+        <svg class="ico"><use href="#i-truck"/></svg><span>Fornecedores</span>
+      </button>
+      <button class="nav__item" data-view="config">
+        <svg class="ico"><use href="#i-gear"/></svg><span>Configurações</span>
+      </button>
+    </nav>
+
+    <div class="sidebar__foot">
+      <div class="live">
+        <span class="live__dot"></span>
+        <div>
+          <strong>Dados ao vivo</strong>
+          <small id="syncInfo">Sincronizado agora</small>
+        </div>
+      </div>
+      <div class="sidebar__user">
+        <div class="avatar">MA</div>
+        <div class="sidebar__user-info">
+          <strong>Marina Alves</strong>
+          <small>Gerente da loja</small>
+        </div>
+      </div>
+      <p class="build" title="Versão do build em execução">
+        <span data-app-version>v0.0.0-dev</span>
+        <span aria-hidden="true">·</span>
+        <span data-app-commit>local</span>
+      </p>
+    </div>
+  </aside>
+
+  <div class="scrim" id="scrim"></div>
+
+  <!-- ===================== Main ===================== -->
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn topbar__burger" id="burger" aria-label="Abrir menu">
+        <svg class="ico"><use href="#i-menu"/></svg>
+      </button>
+
+      <div class="topbar__title">
+        <h1 id="pageTitle">Dashboard</h1>
+        <p id="pageSubtitle">Visão consolidada de estoque, operação e manutenção</p>
+      </div>
+
+      <div class="topbar__actions">
+        <div class="seg seg--period" id="periodSeg" role="group" aria-label="Período">
+          <button data-period="7" class="seg__btn">7d</button>
+          <button data-period="30" class="seg__btn is-active">30d</button>
+          <button data-period="90" class="seg__btn">90d</button>
+          <button data-period="180" class="seg__btn">6m</button>
+          <button data-period="365" class="seg__btn">1a</button>
+        </div>
+
+        <button class="icon-btn" id="btnRefresh" title="Recarregar dados (simulação)">
+          <svg class="ico"><use href="#i-refresh"/></svg>
+        </button>
+
+        <button class="icon-btn" id="btnPalette" title="Busca rápida (Ctrl+K)">
+          <svg class="ico"><use href="#i-search"/></svg>
+        </button>
+
+        <button class="icon-btn" id="btnTheme" title="Alternar tema">
+          <svg class="ico ico--sun"><use href="#i-sun"/></svg>
+          <svg class="ico ico--moon"><use href="#i-moon"/></svg>
+        </button>
+
+        <button class="icon-btn icon-btn--badge" id="btnBell" title="Alertas">
+          <svg class="ico"><use href="#i-bell"/></svg>
+          <span class="badge" id="bellCount">0</span>
+        </button>
+
+        <div class="avatar avatar--top">MA</div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- ============ DASHBOARD ============ -->
+      <section class="view is-active" id="view-dashboard">
+
+        <div class="filterbar">
+          <div class="filterbar__left">
+            <span class="filterbar__title"><svg class="ico ico--sm"><use href="#i-filter"/></svg> Filtros</span>
+            <select class="select" id="fCategoria">
+              <option value="todas">Todas as categorias</option>
+            </select>
+            <select class="select" id="fPrioridade">
+              <option value="todas">Todas as prioridades</option>
+            </select>
+          </div>
+          <div class="filterbar__right">
+            <span class="hint" id="periodHint">Últimos 30 dias</span>
+            <button class="btn btn--ghost btn--sm" id="btnReset">
+              <svg class="ico ico--sm"><use href="#i-refresh"/></svg> Limpar filtros
+            </button>
+            <button class="btn btn--soft btn--sm" id="btnExport">
+              <svg class="ico ico--sm"><use href="#i-download"/></svg> Exportar CSV
+            </button>
+          </div>
+        </div>
+
+        <div class="kpi-grid" id="kpiGrid"></div>
+
+        <div class="grid grid--8-4">
+          <article class="card card--chart">
+            <header class="card__head">
+              <div>
+                <h2>Receita, custo e lucro</h2>
+                <p class="card__sub">Evolução mensal · valores em R$</p>
+              </div>
+              <div class="card__legend" id="legendFinanceiro"></div>
+            </header>
+            <div class="chart-wrap chart-wrap--lg"><canvas id="chFinanceiro"></canvas></div>
+          </article>
+
+          <article class="card card--chart">
+            <header class="card__head">
+              <div>
+                <h2>Estoque por categoria</h2>
+                <p class="card__sub">Valor de custo · clique para filtrar</p>
+              </div>
+            </header>
+            <div class="chart-wrap chart-wrap--lg"><canvas id="chCategorias"></canvas></div>
+            <ul class="mini-list" id="catLegend"></ul>
+          </article>
+        </div>
+
+        <div class="grid grid--6-6">
+          <article class="card card--chart">
+            <header class="card__head">
+              <div>
+                <h2>Unidades vendidas x ticket médio</h2>
+                <p class="card__sub">Volume e valor médio da compra no período</p>
+              </div>
+            </header>
+            <div class="chart-wrap"><canvas id="chVolume"></canvas></div>
+          </article>
+
+          <article class="card card--chart">
+            <header class="card__head">
+              <div>
+                <h2>Ordens de serviço por status</h2>
+                <p class="card__sub">Distribuição no período · clique para filtrar</p>
+              </div>
+            </header>
+            <div class="chart-wrap"><canvas id="chStatusOS"></canvas></div>
+          </article>
+        </div>
+
+        <div class="grid grid--6-6">
+          <article class="card card--chart">
+            <header class="card__head">
+              <div>
+                <h2>Saúde do estoque</h2>
+                <p class="card__sub">SKUs por faixa de cobertura em dias</p>
+              </div>
+            </header>
+            <div class="chart-wrap"><canvas id="chSaude"></canvas></div>
+          </article>
+
+          <article class="card card--chart">
+            <header class="card__head">
+              <div>
+                <h2>Top produtos por receita</h2>
+                <p class="card__sub">8 maiores faturamentos do período</p>
+              </div>
+            </header>
+            <div class="chart-wrap"><canvas id="chTopProdutos"></canvas></div>
+          </article>
+        </div>
+
+        <div class="grid grid--7-5">
+          <article class="card">
+            <header class="card__head">
+              <div>
+                <h2>Alertas operacionais</h2>
+                <p class="card__sub">Gerado automaticamente a partir dos dados</p>
+              </div>
+            </header>
+            <div class="alerts" id="alertas"></div>
+          </article>
+
+          <article class="card">
+            <header class="card__head">
+              <div>
+                <h2>Ordens de serviço recentes</h2>
+                <p class="card__sub">Chamados em aberto e recém-concluídos</p>
+              </div>
+              <button class="btn btn--ghost btn--sm" data-goto="ordens">Ver todas</button>
+            </header>
+            <div class="os-list" id="osRecentes"></div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ============ ESTOQUE ============ -->
+      <section class="view" id="view-estoque">
+        <div class="stat-strip" id="estoqueStrip"></div>
+
+        <div class="grid grid--8-4">
+          <article class="card card--chart">
+            <header class="card__head">
+              <div>
+                <h2>Cobertura de estoque</h2>
+                <p class="card__sub">Dias de autonomia por produto (top 12 mais críticos)</p>
+              </div>
+            </header>
+            <div class="chart-wrap chart-wrap--lg"><canvas id="chCobertura"></canvas></div>
+          </article>
+          <article class="card card--chart">
+            <header class="card__head">
+              <div>
+                <h2>Margem x meta por categoria</h2>
+                <p class="card__sub">% sobre preço de venda</p>
+              </div>
+            </header>
+            <div class="chart-wrap chart-wrap--lg"><canvas id="chMargem"></canvas></div>
+          </article>
+        </div>
+
+        <article class="card">
+          <header class="card__head card__head--tools">
+            <div>
+              <h2>Produtos cadastrados</h2>
+              <p class="card__sub" id="estoqueCount">—</p>
+            </div>
+            <div class="tools">
+              <div class="search">
+                <svg class="ico ico--sm"><use href="#i-search"/></svg>
+                <input type="search" id="estoqueBusca" placeholder="Buscar por nome ou SKU…">
+              </div>
+              <select class="select" id="estoqueStatus">
+                <option value="todas">Todos os status</option>
+                <option value="critico">Crítico</option>
+                <option value="baixo">Estoque baixo</option>
+                <option value="ok">Saudável</option>
+                <option value="excesso">Excesso</option>
+                <option value="parado">Parado</option>
+              </select>
+              <select class="select" id="estoqueOrdem">
+                <option value="receita">Maior receita</option>
+                <option value="cobertura">Menor cobertura</option>
+                <option value="valor">Maior valor em estoque</option>
+                <option value="margem">Menor margem</option>
+                <option value="nome">Nome (A-Z)</option>
+              </select>
+            </div>
+          </header>
+          <div class="table-wrap">
+            <table class="table" id="tabelaEstoque">
+              <thead>
+                <tr>
+                  <th data-sort="nome">Produto</th>
+                  <th data-sort="categoria">Categoria</th>
+                  <th class="num" data-sort="preco">Preço</th>
+                  <th class="num" data-sort="margem">Margem</th>
+                  <th class="num" data-sort="estoque">Estoque</th>
+                  <th data-sort="cobertura">Cobertura</th>
+                  <th data-sort="receita" class="num">Receita 30d</th>
+                  <th data-sort="valor" class="num">Valor em estoque</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <footer class="card__foot">
+            <span id="estoqueFoot">—</span>
+            <div class="pager">
+              <button class="btn btn--ghost btn--sm" id="estoquePrev">Anterior</button>
+              <span id="estoquePage">1 / 1</span>
+              <button class="btn btn--ghost btn--sm" id="estoqueNext">Próxima</button>
+            </div>
+          </footer>
+        </article>
+      </section>
+
+      <!-- ============ ORDENS DE SERVIÇO ============ -->
+      <section class="view" id="view-ordens">
+        <div class="status-chips" id="osChips"></div>
+
+        <div class="grid grid--8-4">
+          <article class="card card--chart">
+            <header class="card__head">
+              <div>
+                <h2>Chamados por tipo e status</h2>
+                <p class="card__sub">Distribuição no período filtrado</p>
+              </div>
+            </header>
+            <div class="chart-wrap chart-wrap--lg"><canvas id="chOSTipo"></canvas></div>
+          </article>
+          <article class="card">
+            <header class="card__head">
+              <div>
+                <h2>Saúde do SLA</h2>
+                <p class="card__sub">Chamados dentro do prazo</p>
+              </div>
+            </header>
+            <div class="sla" id="slaPainel"></div>
+          </article>
+        </div>
+
+        <article class="card">
+          <header class="card__head card__head--tools">
+            <div>
+              <h2>Ordens de serviço</h2>
+              <p class="card__sub" id="osCount">—</p>
+            </div>
+            <div class="tools">
+              <div class="seg seg--view" id="osViewSeg">
+                <button data-mode="tabela" class="seg__btn is-active">Tabela</button>
+                <button data-mode="quadro" class="seg__btn">Quadro</button>
+              </div>
+              <div class="search">
+                <svg class="ico ico--sm"><use href="#i-search"/></svg>
+                <input type="search" id="osBusca" placeholder="Buscar OS, título, setor…">
+              </div>
+              <select class="select" id="osTipo"><option value="todas">Todos os tipos</option></select>
+              <select class="select" id="osPrioridade"><option value="todas">Todas as prioridades</option></select>
+              <select class="select" id="osResponsavel"><option value="todas">Todos os responsáveis</option></select>
+            </div>
+          </header>
+
+          <div class="table-wrap" id="osTabelaWrap">
+            <table class="table" id="tabelaOS">
+              <thead>
+                <tr>
+                  <th data-sort="id">OS</th>
+                  <th data-sort="titulo">Chamado</th>
+                  <th data-sort="tipo">Tipo</th>
+                  <th data-sort="prioridade">Prioridade</th>
+                  <th data-sort="status">Status</th>
+                  <th data-sort="solicitante">Solicitante</th>
+                  <th data-sort="responsavel">Responsável</th>
+                  <th data-sort="abertura">Aberta em</th>
+                  <th data-sort="prazo">Prazo</th>
+                  <th class="num" data-sort="custo">Custo</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <div class="board" id="osQuadro" hidden></div>
+
+          <footer class="card__foot">
+            <span id="osFoot">—</span>
+            <div class="pager">
+              <button class="btn btn--ghost btn--sm" id="osPrev">Anterior</button>
+              <span id="osPage">1 / 1</span>
+              <button class="btn btn--ghost btn--sm" id="osNext">Próxima</button>
+            </div>
+          </footer>
+        </article>
+      </section>
+
+      <!-- ============ ANALYTICS ============ -->
+      <section class="view" id="view-analytics">
+        <div class="insights" id="insights"></div>
+
+        <div class="grid grid--7-5">
+          <article class="card card--chart">
+            <header class="card__head">
+              <div>
+                <h2>Curva ABC de faturamento</h2>
+                <p class="card__sub">Pareto — 20% dos SKUs geram 80% da receita</p>
+              </div>
+            </header>
+            <div class="chart-wrap chart-wrap--lg"><canvas id="chABC"></canvas></div>
+          </article>
+          <article class="card card--chart">
+            <header class="card__head">
+              <div>
+                <h2>Projeção de receita</h2>
+                <p class="card__sub">Regressão linear + faixa de confiança (30 dias)</p>
+              </div>
+            </header>
+            <div class="chart-wrap chart-wrap--lg"><canvas id="chProjecao"></canvas></div>
+          </article>
+        </div>
+
+        <div class="grid grid--6-6">
+          <article class="card card--chart">
+            <header class="card__head">
+              <div>
+                <h2>Receita por mês e categoria</h2>
+                <p class="card__sub">Série histórica de 12 meses</p>
+              </div>
+            </header>
+            <div class="chart-wrap"><canvas id="chMensalCat"></canvas></div>
+          </article>
+          <article class="card card--chart">
+            <header class="card__head">
+              <div>
+                <h2>Desempenho de fornecedores</h2>
+                <p class="card__sub">Prazo médio x custo relativo ao fornecedor</p>
+              </div>
+            </header>
+            <div class="chart-wrap"><canvas id="chFornecedores"></canvas></div>
+          </article>
+        </div>
+
+        <div class="grid grid--6-6">
+          <article class="card">
+            <header class="card__head">
+              <div>
+                <h2>Sazonalidade — receita por semana do ano</h2>
+                <p class="card__sub">Mapa de calor das últimas 52 semanas</p>
+              </div>
+            </header>
+            <div class="heatmap" id="heatmap"></div>
+          </article>
+          <article class="card">
+            <header class="card__head">
+              <div>
+                <h2>Motivos de chamado</h2>
+                <p class="card__sub">Distribuição por tipo nos últimos 12 meses</p>
+              </div>
+            </header>
+            <div class="donut-block">
+              <div class="donut-block__chart chart-wrap"><canvas id="chDonutOS"></canvas></div>
+              <ul class="mini-list" id="donutLegenda"></ul>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ============ FORNECEDORES ============ -->
+      <section class="view" id="view-fornecedores">
+        <div class="grid grid--6-6">
+          <article class="card card--chart">
+            <header class="card__head">
+              <div>
+                <h2>Volume x qualidade</h2>
+                <p class="card__sub">Participação no portfólio x nota de qualidade</p>
+              </div>
+            </header>
+            <div class="chart-wrap chart-wrap--lg"><canvas id="chFnQualidade"></canvas></div>
+          </article>
+          <article class="card card--chart">
+            <header class="card__head">
+              <div>
+                <h2>Prazo médio de entrega</h2>
+                <p class="card__sub">Dias por fornecedor</p>
+              </div>
+            </header>
+            <div class="chart-wrap chart-wrap--lg"><canvas id="chFnPrazo"></canvas></div>
+          </article>
+        </div>
+        <article class="card">
+          <header class="card__head"><div><h2>Portfólio de fornecedores</h2><p class="card__sub">Indicadores de desempenho no período</p></div></header>
+          <div class="table-wrap">
+            <table class="table" id="tabelaFornecedores">
+              <thead>
+                <tr><th>Fornecedor</th><th>Contato</th><th class="num">SKUs</th><th class="num">Receita 30d</th><th class="num">Participação</th><th class="num">Prazo médio</th><th class="num">Atrasos</th><th class="num">Qualidade</th><th>Rating</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- ============ CONFIGURAÇÕES ============ -->
+      <section class="view" id="view-config">
+        <div class="grid grid--6-6">
+          <article class="card">
+            <header class="card__head"><div><h2>Aparência</h2><p class="card__sub">Preferências locais do painel</p></div></header>
+            <div class="settings">
+              <div class="setting">
+                <div><strong>Tema</strong><small>Escuro ou claro</small></div>
+                <div class="seg" id="cfgTema">
+                  <button data-tema="dark" class="seg__btn is-active">Escuro</button>
+                  <button data-tema="light" class="seg__btn">Claro</button>
+                </div>
+              </div>
+              <div class="setting">
+                <div><strong>Densidade da interface</strong><small>Espaçamento entre linhas</small></div>
+                <div class="seg" id="cfgDensidade">
+                  <button data-dens="compacta" class="seg__btn">Compacta</button>
+                  <button data-dens="normal" class="seg__btn is-active">Normal</button>
+                </div>
+              </div>
+              <div class="setting">
+                <div><strong>Animar gráficos</strong><small>Transições ao redraw</small></div>
+                <label class="switch"><input type="checkbox" id="cfgAnim" checked><span></span></label>
+              </div>
+            </div>
+          </article>
+          <article class="card">
+            <header class="card__head"><div><h2>Sobre o PoC</h2><p class="card__sub">Ambiente de demonstração</p></div></header>
+            <div class="about">
+              <p><strong>Loja do Bairro</strong> é um protótipo funcional de painel operacional para uma rede de lojas de bairro. Todos os dados são <strong>mock determinístico</strong> (semente <code id="cfgSeed">—</code>), gerados no navegador — nenhum dado sai da máquina.</p>
+              <dl class="about__list">
+                <div><dt>Produtos</dt><dd id="cfgProdutos">—</dd></div>
+                <div><dt>Ordens de serviço</dt><dd id="cfgOS">—</dd></div>
+                <div><dt>Janela simulada</dt><dd id="cfgJanela">—</dd></div>
+                <div><dt>Versão</dt><dd data-app-version>v0.0.0-dev</dd></div>
+                <div><dt>Build</dt><dd data-app-commit>local</dd></div>
+                <div><dt>Canal</dt><dd data-app-channel>local</dd></div>
+              </dl>
+            </div>
+          </article>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===================== Drawer OS ===================== -->
+<div class="drawer-scrim" id="drawerScrim" hidden></div>
+<aside class="drawer" id="drawer" hidden aria-label="Detalhes da ordem de serviço">
+  <div id="drawerBody"></div>
+</aside>
+
+<!-- ===================== Paleta de comandos ===================== -->
+<div class="palette-scrim" id="paletteScrim" hidden>
+  <div class="palette" role="dialog" aria-label="Busca rápida">
+    <div class="palette__head">
+      <svg class="ico"><use href="#i-search"/></svg>
+      <input type="text" id="paletteInput" placeholder="Buscar-view, ação ou produto…" autocomplete="off">
+      <kbd>ESC</kbd>
+    </div>
+    <ul class="palette__list" id="paletteList"></ul>
+    <footer class="palette__foot">
+      <span><kbd>↑</kbd><kbd>↓</kbd> navegar</span>
+      <span><kbd>↵</kbd> abrir</span>
+      <span><kbd>ESC</kbd> fechar</span>
+    </footer>
+  </div>
+</div>
+
+<!-- ===================== Toasts ===================== -->
+<div class="toasts" id="toasts"></div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/charts.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  // Hidrata os marcadores de versão a partir das metas carimbadas no build.
+  (function () {
+    function ler(nome, reserva) {
+      var el = document.querySelector('meta[name="' + nome + '"]');
+      return el && el.content ? el.content.trim() : reserva;
+    }
+
+    var versao = ler('app-version', '0.0.0-dev');
+    var commit = ler('app-commit', 'local');
+    var canal = ler('app-channel', 'Local · sem CI');
+
+    var valores = {
+      'app-version': /^\d/.test(versao) ? 'v' + versao : versao,
+      'app-commit': commit,
+      'app-channel': canal
+    };
+
+    Object.keys(valores).forEach(function (chave) {
+      var alvos = document.querySelectorAll('[data-' + chave + ']');
+      Array.prototype.forEach.call(alvos, function (el) {
+        el.textContent = valores[chave];
+        el.title = 'Versão: ' + versao + ' · commit: ' + commit + ' · ' + canal;
+      });
+    });
+  })();
+</script>
+</body>
+</html>
